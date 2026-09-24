@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlgorithmsRouteImport } from './routes/algorithms'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as FertilizerRouteImport } from './routes/fertilizer'
+import { Route as IrrigationRouteImport } from './routes/irrigation'
+import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlgorithmsRoute = AlgorithmsRouteImport.update({
+  id: '/algorithms',
+  path: '/algorithms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FertilizerRoute = FertilizerRouteImport.update({
+  id: '/fertilizer',
+  path: '/fertilizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IrrigationRoute = IrrigationRouteImport.update({
+  id: '/irrigation',
+  path: '/irrigation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
+  '/fertilizer': typeof FertilizerRoute
+  '/irrigation': typeof IrrigationRoute
+  '/scanner': typeof ScannerRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
+  '/fertilizer': typeof FertilizerRoute
+  '/irrigation': typeof IrrigationRoute
+  '/scanner': typeof ScannerRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
+  '/fertilizer': typeof FertilizerRoute
+  '/irrigation': typeof IrrigationRoute
+  '/scanner': typeof ScannerRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlgorithmsRoute: typeof AlgorithmsRoute
+  ChatRoute: typeof ChatRoute
+  FertilizerRoute: typeof FertilizerRoute
+  IrrigationRoute: typeof IrrigationRoute
+  ScannerRoute: typeof ScannerRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/algorithms': {
+      id: '/algorithms'
+      path: '/algorithms'
+      fullPath: '/algorithms'
+      preLoaderRoute: typeof AlgorithmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fertilizer': {
+      id: '/fertilizer'
+      path: '/fertilizer'
+      fullPath: '/fertilizer'
+      preLoaderRoute: typeof FertilizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/irrigation': {
+      id: '/irrigation'
+      path: '/irrigation'
+      fullPath: '/irrigation'
+      preLoaderRoute: typeof IrrigationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlgorithmsRoute: AlgorithmsRoute,
+  ChatRoute: ChatRoute,
+  FertilizerRoute: FertilizerRoute,
+  IrrigationRoute: IrrigationRoute,
+  ScannerRoute: ScannerRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
