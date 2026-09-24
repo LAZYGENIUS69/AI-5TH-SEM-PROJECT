@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlgorithmsRouteImport } from './routes/algorithms'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as FertilizerRouteImport } from './routes/fertilizer'
 import { Route as IrrigationRouteImport } from './routes/irrigation'
 import { Route as ScannerRouteImport } from './routes/scanner'
@@ -18,6 +20,16 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlgorithmsRoute = AlgorithmsRouteImport.update({
+  id: '/algorithms',
+  path: '/algorithms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FertilizerRoute = FertilizerRouteImport.update({
@@ -43,6 +55,8 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
   '/scanner': typeof ScannerRoute
@@ -50,6 +64,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
   '/scanner': typeof ScannerRoute
@@ -58,6 +74,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/algorithms': typeof AlgorithmsRoute
+  '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
   '/scanner': typeof ScannerRoute
@@ -65,15 +83,38 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/fertilizer' | '/irrigation' | '/scanner' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/fertilizer' | '/irrigation' | '/scanner' | '/api/chat'
+  to:
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
   id:
-    '__root__' | '/' | '/fertilizer' | '/irrigation' | '/scanner' | '/api/chat'
+    | '__root__'
+    | '/'
+    | '/algorithms'
+    | '/chat'
+    | '/fertilizer'
+    | '/irrigation'
+    | '/scanner'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlgorithmsRoute: typeof AlgorithmsRoute
+  ChatRoute: typeof ChatRoute
   FertilizerRoute: typeof FertilizerRoute
   IrrigationRoute: typeof IrrigationRoute
   ScannerRoute: typeof ScannerRoute
@@ -87,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/algorithms': {
+      id: '/algorithms'
+      path: '/algorithms'
+      fullPath: '/algorithms'
+      preLoaderRoute: typeof AlgorithmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fertilizer': {
@@ -122,6 +177,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlgorithmsRoute: AlgorithmsRoute,
+  ChatRoute: ChatRoute,
   FertilizerRoute: FertilizerRoute,
   IrrigationRoute: IrrigationRoute,
   ScannerRoute: ScannerRoute,
