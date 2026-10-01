@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   Bug,
   Droplets,
@@ -20,8 +20,9 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const isIrrigation = useLocation({ select: (location) => location.pathname === "/irrigation" });
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background text-foreground ${isIrrigation ? "dark agridss-dark" : ""}`}>
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
           <Link to="/" className="flex shrink-0 items-center gap-2">
