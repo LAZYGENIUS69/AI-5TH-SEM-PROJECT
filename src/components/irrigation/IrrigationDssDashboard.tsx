@@ -84,15 +84,15 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
   const irrigateVotes = state.knn.neighbors.filter((neighbor) => neighbor.label === "IRRIGATE").length;
   const isIrrigate = state.decision === "IRRIGATE";
   const isReview = state.decision === "MANUAL_REVIEW";
-  const decisionTone = isIrrigate ? "border-destructive/40 bg-destructive/5 text-destructive" : isReview ? "border-warning/50 bg-warning/10 text-warning-foreground" : "border-success/40 bg-success/5 text-success";
+  const decisionTone = isIrrigate ? "border-destructive/50 bg-destructive/10 text-destructive" : isReview ? "border-warning/50 bg-warning/10 text-warning-foreground" : "border-success/50 bg-success/10 text-success";
   const reasoning = `SM at ${state.smSmoothed.toFixed(1)}% ${state.smSmoothed < 45 ? "below" : "above"} the 45% field-capacity threshold. ETc is ${state.etc.toFixed(2)} mm/day. ${irrigateVotes}/5 neighbors recommend irrigation.${state.fault.sensor ? ` ${state.fault.sensor} is flagged.` : ""}`;
 
   return (
-    <div className="space-y-4">
-      <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div className="agridss-dashboard space-y-4">
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="relative flex size-3"><span className="absolute size-full animate-ping rounded-full bg-primary/50" /><span className="relative size-3 rounded-full bg-primary" /></span>
-          <div><h2 className="font-display text-base font-semibold">Live irrigation decision system</h2><p className="text-xs text-muted-foreground">Sensor simulation · reading {state.tick}</p></div>
+          <div><h2 className="font-mono text-sm font-semibold text-primary">AgriDSS — Irrigation Decision Support System</h2><p className="font-mono text-xs text-muted-foreground">LIVE · TICK {state.tick}</p></div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="gap-1"><Radio className="size-3" /> Simulation mode</Badge>
@@ -106,10 +106,10 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
         <CardHeader className="pb-3"><CardTitle className="text-sm">System signal path</CardTitle></CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-3 lg:grid-cols-7">
           {[{ icon: Sprout, label: "3 soil probes" }, { icon: Cpu, label: "Sensor fusion" }, { icon: Waves, label: "SMA filter" }, { icon: Gauge, label: "KNN model" }, { icon: CloudRain, label: "Safety gates" }, { icon: Droplets, label: "Water pump" }, { icon: Radio, label: "Dashboard" }].map((node, index) => (
-            <div key={node.label} className="relative flex min-h-20 items-center gap-2 rounded-md border border-border bg-muted/35 p-3 sm:flex-col sm:justify-center sm:text-center">
+            <div key={node.label} className="relative flex min-h-20 items-center gap-2 rounded-md border border-border bg-secondary p-3 sm:flex-col sm:justify-center sm:text-center">
               <node.icon className={cn("size-5 text-primary", index === 5 && state.pumpStatus && "animate-bounce text-destructive")} />
               <span className="text-xs font-medium">{node.label}</span>
-              {index < 6 && <span className="absolute -right-2 top-1/2 z-10 hidden size-3 -translate-y-1/2 rotate-45 border-r border-t border-primary bg-card lg:block" />}
+               {index < 6 && <span className="absolute -right-2 top-1/2 z-10 hidden size-3 -translate-y-1/2 rotate-45 border-r border-t border-primary bg-secondary lg:block" />}
             </div>
           ))}
         </CardContent>
@@ -150,7 +150,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
         <Card className="min-w-0">
           <CardHeader><CardTitle className="text-sm">Pump control</CardTitle></CardHeader>
           <CardContent className="flex flex-col items-center gap-4 text-center">
-            <div className={cn("flex size-28 items-center justify-center rounded-full border-4", state.pumpStatus ? "animate-pulse border-primary bg-primary/10 text-primary" : "border-border bg-muted text-muted-foreground")}><Droplets className="size-10" /></div>
+             <div className={cn("flex size-28 items-center justify-center rounded-full border-4", state.pumpStatus ? "animate-pulse border-primary bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground")}><Droplets className="size-10" /></div>
             <div><p className={cn("font-mono text-lg font-semibold", state.pumpStatus ? "text-primary" : "text-muted-foreground")}>{state.pumpStatus ? "PUMP ON" : "PUMP OFF"}</p><p className="text-xs text-muted-foreground">{state.pumpStatus ? "Applying water" : "Monitoring field"}</p></div>
             <div className="w-full"><div className="mb-1 flex justify-between text-xs"><span>Tank level</span><span className="font-mono">{Math.round(state.waterTankLevel)}%</span></div><Progress value={state.waterTankLevel} /></div>
           </CardContent>
@@ -164,11 +164,11 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
 
       <Card>
         <CardHeader><CardTitle className="text-sm">Soil moisture trend</CardTitle></CardHeader>
-        <CardContent><div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={state.history}><CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" /><XAxis dataKey="tick" tick={{ fontSize: 10 }} /><YAxis domain={[0, 100]} tick={{ fontSize: 10 }} /><ReferenceLine y={45} stroke="var(--color-destructive)" strokeDasharray="4 3" /><Area type="monotone" dataKey="smNorm" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.13} strokeWidth={2} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div></CardContent>
+        <CardContent><div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={state.history}><CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" /><XAxis dataKey="tick" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} /><YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} /><ReferenceLine y={45} stroke="var(--color-destructive)" strokeDasharray="4 3" /><Area type="monotone" dataKey="smNorm" stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.13} strokeWidth={2} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div></CardContent>
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Live monitor</CardTitle></CardHeader><CardContent><div className="h-48 overflow-y-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-6 text-primary">{state.serialLog.length ? state.serialLog.map((line) => <div key={line}>{line}</div>) : <span className="text-muted-foreground">Waiting for readings…</span>}</div></CardContent></Card>
+        <Card className="min-w-0"><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><span className="size-2 animate-pulse rounded-full bg-primary" /> Serial Monitor — 115200 baud</CardTitle></CardHeader><CardContent><div className="h-48 overflow-y-auto rounded-md border bg-background p-3 font-mono text-xs leading-6 text-primary">{state.serialLog.length ? state.serialLog.map((line) => <div key={line}>{line}</div>) : <span className="text-muted-foreground">Waiting for readings…</span>}</div></CardContent></Card>
         <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Algorithm performance comparison</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">Algorithm</th><th>Accuracy</th><th>RMSE</th><th>Interpretability</th></tr></thead><tbody>{[{ name: "KNN (k=5)", key: "KNN", accuracy: "98.3%", rmse: "0.12", rating: "High" }, { name: "Naive Bayes", key: "NAIVE_BAYES", accuracy: "95.1%", rmse: "0.18", rating: "Very high" }, { name: "Logistic regression", key: "LOGISTIC_REG", accuracy: "92.4%", rmse: "0.22", rating: "High" }, { name: "Neural net", key: "NEURAL_NET", accuracy: "97.8%", rmse: "0.14", rating: "Low" }].map((row) => <tr key={row.name} className={cn("border-b", row.key === state.model && "bg-primary/5")}><td className="py-3 font-medium">{row.name} {row.key === state.model && <Badge className="ml-1">Active</Badge>}</td><td className="font-mono">{row.accuracy}</td><td className="font-mono">{row.rmse}</td><td>{row.rating}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">KNN is selected for accuracy with interpretable neighbor evidence.</p></CardContent></Card>
       </div>
 

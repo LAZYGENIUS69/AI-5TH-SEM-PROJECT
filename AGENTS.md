@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep irrigation calculations in pure modules under `src/algorithms`; the live sensor simulator may depend on them, but they must not depend on React, so the Algorithm Inspector stays synchronized with production logic.
+- Scope AgriDSS dark styling to the irrigation route shell via semantic theme tokens; other AgriSense pages retain their light styling.
