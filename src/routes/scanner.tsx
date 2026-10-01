@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, CheckCircle2, ImageUp, Loader2, ShieldAlert, Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,16 +52,25 @@ function Scanner() {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
+  const [dragging, setDragging] = useState(false);
+
   const analyse = useCallback(async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose a JPG, PNG or WebP photo.");
+      return;
+    }
     setResult(null);
     const url = URL.createObjectURL(file);
     setPreview(url);
 
     const img = new Image();
     img.src = url;
-    await img.decode().catch(() => {
+    try {
+      await img.decode();
+    } catch {
       toast.error("That file could not be read as an image.");
-    });
+      return;
+    }
 
     const scale = 256 / Math.max(img.width || 1, img.height || 1, 1);
     const w = Math.max(1, Math.round((img.width || 256) * Math.min(1, scale)));
@@ -108,6 +117,17 @@ function Scanner() {
     e.target.value = "";
   };
 
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const file = Array.from(e.clipboardData?.files ?? []).find((f) =>
+        f.type.startsWith("image/"),
+      );
+      if (file) void analyse(file);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [analyse]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -123,13 +143,34 @@ function Scanner() {
             <CardTitle className="text-base">Leaf image</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="field-grid flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") fileRef.current?.click();
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) void analyse(file);
+              }}
+              className={`field-grid flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-muted/40 transition-colors ${
+                dragging ? "border-primary bg-primary/10" : "border-border"
+              }`}
+            >
               {preview ? (
                 <img src={preview} alt="Leaf to analyse" className="size-full object-cover" />
               ) : (
                 <div className="p-6 text-center text-sm text-muted-foreground">
                   <Sprout className="mx-auto mb-2 size-8 text-primary/60" />
-                  No image yet
+                  Drag a leaf photo here, paste it (Ctrl+V), or click to browse
                 </div>
               )}
             </div>
@@ -137,14 +178,14 @@ function Scanner() {
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.webp"
                 hidden
                 onChange={onPick}
               />
               <input
                 ref={cameraRef}
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.webp"
                 capture="environment"
                 hidden
                 onChange={onPick}
