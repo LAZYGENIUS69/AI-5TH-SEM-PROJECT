@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bug, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
+import { Bug, Cpu, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { DISEASE_CV_SPEC } from "@/algorithms/diseaseCV";
 import { RAG_SPEC } from "@/algorithms/ragEngine";
 import { WEATHER_SPEC } from "@/algorithms/weatherAdvisor";
 import { FERTILIZER_SPEC } from "@/algorithms/fertilizerOptimizer";
+import { IRRIGATION_DSS_SPEC } from "@/algorithms/irrigationDss";
 
 export const Route = createFileRoute("/algorithms")({
   head: () => ({
@@ -102,6 +103,9 @@ function Algorithms() {
           <TabsTrigger value="weather" className="gap-2">
             <Droplets className="size-4" /> weatherAdvisor.ts
           </TabsTrigger>
+          <TabsTrigger value="sensor" className="gap-2">
+            <Cpu className="size-4" /> irrigationDss.ts
+          </TabsTrigger>
           <TabsTrigger value="fertilizer" className="gap-2">
             <FlaskConical className="size-4" /> fertilizerOptimizer.ts
           </TabsTrigger>
@@ -174,6 +178,29 @@ function Algorithms() {
               </Section>
               <Section title="Alert thresholds">
                 <KeyValues data={WEATHER_SPEC.thresholds} />
+              </Section>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sensor">
+          <Card>
+            <CardHeader>
+              <CardTitle>{IRRIGATION_DSS_SPEC.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{IRRIGATION_DSS_SPEC.summary}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Section title="Formulas">
+                <CodeBlock lines={IRRIGATION_DSS_SPEC.formulas} />
+              </Section>
+              <Section title="Decision tree">
+                <CodeBlock lines={IRRIGATION_DSS_SPEC.decisionTree} />
+              </Section>
+              <Section title="Sensor weights">
+                <KeyValues data={IRRIGATION_DSS_SPEC.weights} />
+              </Section>
+              <Section title="Thresholds">
+                <KeyValues data={IRRIGATION_DSS_SPEC.thresholds} />
               </Section>
             </CardContent>
           </Card>

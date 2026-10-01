@@ -20,6 +20,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,6 +80,7 @@ function SensorCard({ label, depth, value, fault, dataKey, history }: {
 
 export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialCrop: SensorCropType; onCropChange: (crop: SensorCropType) => void }) {
   const { state, triggerDrought, triggerRain, triggerFault, setRainDetected, setCropType } = useIrrigationSimulation(initialCrop);
+  useEffect(() => setCropType(initialCrop), [initialCrop, setCropType]);
   const irrigateVotes = state.knn.neighbors.filter((neighbor) => neighbor.label === "IRRIGATE").length;
   const isIrrigate = state.decision === "IRRIGATE";
   const isReview = state.decision === "MANUAL_REVIEW";
