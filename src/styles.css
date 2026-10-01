@@ -112,55 +112,51 @@
   --sidebar-ring: oklch(0.44 0.095 152);
 }
 
-.dark, :root:has(.agridss-dark) {
+.dark {
   --radius: 0.5rem;
-  --background: oklch(0.1610 0.0131 144.9);
+  --background: oklch(0.125 0.004 145);
   --foreground: oklch(0.9288 0.0126 255.5);
-  --card: oklch(0.1989 0.0189 141.6);
+  --card: oklch(0.18 0.006 145);
   --card-foreground: oklch(0.9288 0.0126 255.5);
-  --popover: oklch(0.1989 0.0189 141.6);
+  --popover: oklch(0.18 0.006 145);
   --popover-foreground: oklch(0.9288 0.0126 255.5);
   --primary: oklch(0.7227 0.1920 149.6);
-  --primary-foreground: oklch(0.1610 0.0131 144.9);
-  --secondary: oklch(0.1903 0.0175 144.8);
+  --primary-foreground: oklch(0.125 0.004 145);
+  --secondary: oklch(0.22 0.006 145);
   --secondary-foreground: oklch(0.9288 0.0126 255.5);
-  --muted: oklch(0.2816 0.0360 144.5);
-  --muted-foreground: oklch(0.7107 0.0351 256.8);
-  --accent: oklch(0.2816 0.0360 144.5);
+  --muted: oklch(0.235 0.007 145);
+  --muted-foreground: oklch(0.72 0.012 255);
+  --accent: oklch(0.255 0.018 145);
   --accent-foreground: oklch(0.8003 0.1821 151.7);
   --destructive: oklch(0.6368 0.2078 25.3);
   --destructive-foreground: oklch(0.9288 0.0126 255.5);
   --success: oklch(0.7227 0.1920 149.6);
-  --success-foreground: oklch(0.1610 0.0131 144.9);
+  --success-foreground: oklch(0.125 0.004 145);
   --warning: oklch(0.7686 0.1647 70.1);
   --warning-foreground: oklch(0.7686 0.1647 70.1);
   --soil: oklch(0.4461 0.0263 256.8);
   --soil-foreground: oklch(0.9288 0.0126 255.5);
-  --border: oklch(0.2816 0.0360 144.5);
-  --input: oklch(0.3555 0.0280 145.0);
+  --border: oklch(0.29 0.009 145);
+  --input: oklch(0.32 0.01 145);
   --ring: oklch(0.7227 0.1920 149.6);
   --chart-1: oklch(0.7227 0.1920 149.6);
   --chart-2: oklch(0.7686 0.1647 70.1);
   --chart-3: oklch(0.6368 0.2078 25.3);
   --chart-4: oklch(0.7137 0.1434 254.6);
   --chart-5: oklch(0.8003 0.1821 151.7);
-  --sidebar: oklch(0.1989 0.0189 141.6);
+  --sidebar: oklch(0.16 0.005 145);
   --sidebar-foreground: oklch(0.9288 0.0126 255.5);
   --sidebar-primary: oklch(0.7227 0.1920 149.6);
-  --sidebar-primary-foreground: oklch(0.1610 0.0131 144.9);
-  --sidebar-accent: oklch(0.2816 0.0360 144.5);
+  --sidebar-primary-foreground: oklch(0.125 0.004 145);
+  --sidebar-accent: oklch(0.245 0.015 145);
   --sidebar-accent-foreground: oklch(0.9288 0.0126 255.5);
-  --sidebar-border: oklch(0.2816 0.0360 144.5);
+  --sidebar-border: oklch(0.29 0.009 145);
   --sidebar-ring: oklch(0.7227 0.1920 149.6);
 }
 
-/* The uploaded AgriDSS palette is confined to the irrigation workspace. */
-.agridss-dark {
+/* The AgriDSS control-room treatment stays scoped to irrigation; colors follow the selected theme. */
+.dark {
   color-scheme: dark;
-}
-
-.agridss-dark main {
-  background-color: var(--background);
 }
 
 .agridss-dark .agridss-dashboard .bg-card {

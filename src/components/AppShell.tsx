@@ -6,9 +6,14 @@ import {
   LayoutDashboard,
   Leaf,
   MessagesSquare,
+  Moon,
   SquareFunction,
+  Sun,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -21,8 +26,31 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const isIrrigation = useLocation({ select: (location) => location.pathname === "/irrigation" });
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("agrisense.theme");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setTheme(savedTheme);
+      return;
+    }
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      window.localStorage.setItem("agrisense.theme", nextTheme);
+      return nextTheme;
+    });
+  };
+
+  const isDark = theme === "dark";
+
   return (
-    <div className={`min-h-screen bg-background text-foreground ${isIrrigation ? "dark agridss-dark" : ""}`}>
+    <div className={`min-h-screen bg-background text-foreground ${isDark ? "dark" : ""} ${isIrrigation ? "agridss-dark" : ""}`}>
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
           <Link to="/" className="flex shrink-0 items-center gap-2">
@@ -50,6 +78,25 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={toggleTheme}
+                  aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+                  className="shrink-0"
+                >
+                  {isDark ? <Sun /> : <Moon />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                Switch to {isDark ? "light" : "dark"} mode
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
