@@ -129,7 +129,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr_0.7fr]">
-        <Card>
+        <Card className="min-w-0">
           <CardHeader><CardTitle className="text-sm">Processing pipeline</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {["Raw sensor input", "Fault detection · eq. 6, 7", "SMA filter n=6 · eq. 3", "Normalization · eq. 2", "ET₀ calculation · eq. 4, 5", "KNN inference k=5 · eq. 8", `Decision · ${state.decision}`].map((step, index) => (
@@ -138,7 +138,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader className="flex-row items-center justify-between"><CardTitle className="text-sm">KNN neighbor retrieval</CardTitle><Badge variant={state.model === "KNN" ? "default" : "secondary"}>{state.model === "KNN" ? "KNN k=5" : "Naive Bayes"}</Badge></CardHeader>
           <CardContent className="space-y-4">
             <div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">SM%</th><th>Temp</th><th>RH</th><th>ETc</th><th>Label</th><th>Distance</th></tr></thead><tbody>{state.knn.neighbors.map((neighbor, index) => <tr key={`${neighbor.sm}-${index}`} className="border-b border-border/60 font-mono"><td className="py-2">{neighbor.sm.toFixed(1)}</td><td>{neighbor.temp.toFixed(1)}</td><td>{neighbor.rh.toFixed(0)}</td><td>{neighbor.etc.toFixed(1)}</td><td className={neighbor.label === "IRRIGATE" ? "text-destructive" : "text-success"}>{neighbor.label}</td><td className="text-muted-foreground">{neighbor.distance.toFixed(3)}</td></tr>)}</tbody></table></div>
@@ -147,7 +147,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader><CardTitle className="text-sm">Pump control</CardTitle></CardHeader>
           <CardContent className="flex flex-col items-center gap-4 text-center">
             <div className={cn("flex size-28 items-center justify-center rounded-full border-4", state.pumpStatus ? "animate-pulse border-primary bg-primary/10 text-primary" : "border-border bg-muted text-muted-foreground")}><Droplets className="size-10" /></div>
@@ -168,8 +168,8 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card><CardHeader><CardTitle className="text-sm">Live monitor</CardTitle></CardHeader><CardContent><div className="h-48 overflow-y-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-6 text-primary">{state.serialLog.length ? state.serialLog.map((line) => <div key={line}>{line}</div>) : <span className="text-muted-foreground">Waiting for readings…</span>}</div></CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-sm">Algorithm performance comparison</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">Algorithm</th><th>Accuracy</th><th>RMSE</th><th>Interpretability</th></tr></thead><tbody>{[{ name: "KNN (k=5)", key: "KNN", accuracy: "98.3%", rmse: "0.12", rating: "High" }, { name: "Naive Bayes", key: "NAIVE_BAYES", accuracy: "95.1%", rmse: "0.18", rating: "Very high" }, { name: "Logistic regression", key: "LOGISTIC_REG", accuracy: "92.4%", rmse: "0.22", rating: "High" }, { name: "Neural net", key: "NEURAL_NET", accuracy: "97.8%", rmse: "0.14", rating: "Low" }].map((row) => <tr key={row.name} className={cn("border-b", row.key === state.model && "bg-primary/5")}><td className="py-3 font-medium">{row.name} {row.key === state.model && <Badge className="ml-1">Active</Badge>}</td><td className="font-mono">{row.accuracy}</td><td className="font-mono">{row.rmse}</td><td>{row.rating}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">KNN is selected for accuracy with interpretable neighbor evidence.</p></CardContent></Card>
+        <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Live monitor</CardTitle></CardHeader><CardContent><div className="h-48 overflow-y-auto rounded-md border bg-muted/50 p-3 font-mono text-xs leading-6 text-primary">{state.serialLog.length ? state.serialLog.map((line) => <div key={line}>{line}</div>) : <span className="text-muted-foreground">Waiting for readings…</span>}</div></CardContent></Card>
+        <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Algorithm performance comparison</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">Algorithm</th><th>Accuracy</th><th>RMSE</th><th>Interpretability</th></tr></thead><tbody>{[{ name: "KNN (k=5)", key: "KNN", accuracy: "98.3%", rmse: "0.12", rating: "High" }, { name: "Naive Bayes", key: "NAIVE_BAYES", accuracy: "95.1%", rmse: "0.18", rating: "Very high" }, { name: "Logistic regression", key: "LOGISTIC_REG", accuracy: "92.4%", rmse: "0.22", rating: "High" }, { name: "Neural net", key: "NEURAL_NET", accuracy: "97.8%", rmse: "0.14", rating: "Low" }].map((row) => <tr key={row.name} className={cn("border-b", row.key === state.model && "bg-primary/5")}><td className="py-3 font-medium">{row.name} {row.key === state.model && <Badge className="ml-1">Active</Badge>}</td><td className="font-mono">{row.accuracy}</td><td className="font-mono">{row.rmse}</td><td>{row.rating}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">KNN is selected for accuracy with interpretable neighbor evidence.</p></CardContent></Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
