@@ -112,7 +112,7 @@
   --sidebar-ring: oklch(0.44 0.095 152);
 }
 
-.dark {
+.dark, :root:has(.agridss-dark) {
   --radius: 0.5rem;
   --background: oklch(0.1610 0.0131 144.9);
   --foreground: oklch(0.9288 0.0126 255.5);
@@ -163,7 +163,7 @@
   background-color: var(--background);
 }
 
-.agridss-dark .agridss-dashboard [data-irrigation-card] {
+.agridss-dark .agridss-dashboard .bg-card {
   border-radius: var(--radius);
   box-shadow: none;
 }
