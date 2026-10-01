@@ -87,8 +87,8 @@ function Fertilizer() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <Card>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FlaskConical className="size-4" /> Inputs
@@ -148,8 +148,8 @@ function Fertilizer() {
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
-          <Card>
+        <div className="min-w-0 space-y-6">
+          <Card className="min-w-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Package className="size-4" /> Apply this
@@ -192,7 +192,7 @@ function Fertilizer() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="min-w-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <CalendarRange className="size-4" /> Application timing
@@ -212,7 +212,7 @@ function Fertilizer() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="min-w-0">
             <CardHeader>
               <CardTitle className="text-base">Nutrient balance (kg/ha, elemental)</CardTitle>
             </CardHeader>

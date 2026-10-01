@@ -6,3 +6,5 @@
 - [x] Verify desktop and mobile behavior.
 - [x] Apply the uploaded AgriDSS dark theme to the irrigation screen only, including its navigation and forecast plan.
 - [x] Verify the dark screen on desktop and mobile without changing other pages.
+- [x] Add an app-wide persistent light/dark switch with a black-heavy dark palette.
+- [x] Verify both themes on desktop and mobile, including irrigation and persistence.
