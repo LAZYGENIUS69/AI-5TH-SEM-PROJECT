@@ -7,7 +7,12 @@ import { DISEASE_CV_SPEC } from "@/algorithms/diseaseCV";
 import { RAG_SPEC } from "@/algorithms/ragEngine";
 import { WEATHER_SPEC } from "@/algorithms/weatherAdvisor";
 import { FERTILIZER_SPEC } from "@/algorithms/fertilizerOptimizer";
-import { IRRIGATION_DSS_SPEC } from "@/algorithms/irrigationDss";
+import { FAO56_SPEC } from "@/algorithms/fao56DualKc";
+import { KALMAN_SPEC } from "@/algorithms/soilKalman";
+import { MPC_SPEC } from "@/algorithms/irrigationMpc";
+import { KalmanPanel, LedgerPanel, MpcPanel, WaterBalancePanel } from "@/components/irrigation/EnginePanels";
+import { useIrrigationEngine } from "@/hooks/useIrrigationEngine";
+import { useFarm, useHourlyForecast } from "@/hooks/useFarm";
 
 export const Route = createFileRoute("/algorithms")({
   head: () => ({
@@ -103,8 +108,14 @@ function Algorithms() {
           <TabsTrigger value="weather" className="gap-2">
             <Droplets className="size-4" /> weatherAdvisor.ts
           </TabsTrigger>
-          <TabsTrigger value="sensor" className="gap-2">
-            <Cpu className="size-4" /> irrigationDss.ts
+          <TabsTrigger value="kalman" className="gap-2">
+            <Cpu className="size-4" /> soilKalman.ts
+          </TabsTrigger>
+          <TabsTrigger value="fao56" className="gap-2">
+            <Droplets className="size-4" /> fao56DualKc.ts
+          </TabsTrigger>
+          <TabsTrigger value="mpc" className="gap-2">
+            <Cpu className="size-4" /> irrigationMpc.ts
           </TabsTrigger>
           <TabsTrigger value="fertilizer" className="gap-2">
             <FlaskConical className="size-4" /> fertilizerOptimizer.ts
@@ -183,27 +194,17 @@ function Algorithms() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="sensor">
-          <Card>
-            <CardHeader>
-              <CardTitle>{IRRIGATION_DSS_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{IRRIGATION_DSS_SPEC.summary}</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Section title="Formulas">
-                <CodeBlock lines={IRRIGATION_DSS_SPEC.formulas} />
-              </Section>
-              <Section title="Decision tree">
-                <CodeBlock lines={IRRIGATION_DSS_SPEC.decisionTree} />
-              </Section>
-              <Section title="Sensor weights">
-                <KeyValues data={IRRIGATION_DSS_SPEC.weights} />
-              </Section>
-              <Section title="Thresholds">
-                <KeyValues data={IRRIGATION_DSS_SPEC.thresholds} />
-              </Section>
-            </CardContent>
-          </Card>
+        <TabsContent value="kalman">
+          <SpecCard spec={KALMAN_SPEC} extraTitle="Filter configuration" extra={KALMAN_SPEC.config} />
+          <LivePanel which="kalman" />
+        </TabsContent>
+        <TabsContent value="fao56">
+          <SpecCard spec={FAO56_SPEC} extraTitle="Constants" extra={FAO56_SPEC.constants} />
+          <LivePanel which="fao56" />
+        </TabsContent>
+        <TabsContent value="mpc">
+          <SpecCard spec={MPC_SPEC} extraTitle="Controller configuration" extra={MPC_SPEC.config} />
+          <LivePanel which="mpc" />
         </TabsContent>
 
         <TabsContent value="fertilizer">
@@ -229,6 +230,49 @@ function Algorithms() {
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function SpecCard({ spec, extraTitle, extra }: { spec: { title: string; summary: string; formulas: readonly string[]; assumptions?: readonly string[] }; extraTitle: string; extra: Record<string, unknown> }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{spec.title}</CardTitle>
+        <p className="text-sm text-muted-foreground">{spec.summary}</p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Section title="Formulas">
+          <CodeBlock lines={spec.formulas} />
+        </Section>
+        <Section title={extraTitle}>
+          <KeyValues data={extra} />
+        </Section>
+        {spec.assumptions && (
+          <Section title="Assumptions and limits">
+            <List items={spec.assumptions} />
+          </Section>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LivePanel({ which }: { which: "kalman" | "fao56" | "mpc" }) {
+  const { farm } = useFarm();
+  const hourly = useHourlyForecast(farm.latitude, farm.longitude);
+  const { state } = useIrrigationEngine(farm.cropId, farm.soilId, farm.stage, hourly.data);
+  return (
+    <div className="mt-4 space-y-4">
+      <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Live state — same engine as the irrigation page</h3>
+      {which === "kalman" && <KalmanPanel state={state} />}
+      {which === "fao56" && (
+        <>
+          <WaterBalancePanel state={state} />
+          <LedgerPanel state={state} />
+        </>
+      )}
+      {which === "mpc" && <MpcPanel state={state} />}
     </div>
   );
 }
