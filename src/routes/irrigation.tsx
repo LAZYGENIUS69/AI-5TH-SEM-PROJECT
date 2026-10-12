@@ -8,16 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useFarm, useForecast } from "@/hooks/useFarm";
+import { useFarm, useForecast, useHourlyForecast } from "@/hooks/useFarm";
 import { buildIrrigationSchedule, CROP_WATER_PROFILES, SOIL_PROFILES, STAGE_KEYS, type StageKey } from "@/algorithms/weatherAdvisor";
-import type { SensorCropType } from "@/algorithms/irrigationDss";
 
 export const Route = createFileRoute("/irrigation")({
   head: () => ({ meta: [
     { title: "Live Irrigation Decision System | AgriSense" },
-    { name: "description", content: "Live sensor-fusion irrigation decisions, KNN evidence, pump control and a weather-aware seven-day water plan." },
+    { name: "description", content: "Kalman-filtered soil probes, FAO-56 dual crop coefficient water balance and 72-hour model predictive pump scheduling." },
     { property: "og:title", content: "AgriSense Live Irrigation Decision System" },
-    { property: "og:description", content: "Inspect soil sensors, model confidence, pump decisions and the seven-day irrigation plan." },
+    { property: "og:description", content: "Watch a Kalman observer, FAO-56 water ledger and 72-hour MPC plan schedule irrigation against the live forecast." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
@@ -39,12 +38,12 @@ function Irrigation() {
     if (!data || !crop || !soil) return null;
     return buildIrrigationSchedule({ forecast: data.daily, latitude: farm.latitude, crop, soil, stage: farm.stage, areaHa: farm.areaHa, initialDepletionMm: crop.rootDepthM * soil.availableWaterMmPerM * crop.depletionFraction * 0.7 });
   }, [data, farm, crop, soil]);
-  const sensorCrop: SensorCropType = farm.cropId === "rice" || farm.cropId === "maize" ? farm.cropId : "wheat";
+  const hourly = useHourlyForecast(farm.latitude, farm.longitude);
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="font-display text-3xl font-semibold">Irrigation control</h1><p className="text-sm text-muted-foreground">Sensor-driven pump decisions with a live weather-aware field plan.</p></div><LocationPicker placeName={farm.placeName} onSelect={update} /></div>
-      <IrrigationDssDashboard initialCrop={sensorCrop} onCropChange={(cropId) => update({ cropId })} />
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="font-display text-3xl font-semibold">Irrigation control</h1><p className="text-sm text-muted-foreground">Kalman-filtered probes, FAO-56 dual-Kc water balance and a 72-hour predictive pump schedule. Wheat, rice and maize use full FAO-56 parameters; other crops fall back to wheat.</p></div><LocationPicker placeName={farm.placeName} onSelect={update} /></div>
+      <IrrigationDssDashboard cropId={farm.cropId} soilId={farm.soilId} stage={farm.stage} hourly={hourly.data} />
 
       <section className="space-y-4 border-t border-border pt-8">
         <div><h2 className="font-display text-2xl font-semibold">Seven-day field plan</h2><p className="text-sm text-muted-foreground">The existing forecast model converts evapotranspiration and rain into daily water volumes.</p></div>
