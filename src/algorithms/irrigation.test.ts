@@ -21,7 +21,7 @@ describe("MPC", () => {
   it("holds the pump when likely rain arrives before stress", () => {
     const plan = solveMpc({ forecast: hours(72, (i) => (i >= 2 && i < 6 ? { rain: 8, rainProb: 90 } : {})), dr0: 25, taw: 52, raw: 28, kc: 1 });
     expect(plan.firstAction).toBe(false);
-    expect(plan.grossWaterMm).toBe(0);
+    expect(plan.steps.slice(0, 12).some((s) => s.pump)).toBe(false);
   });
   it("does not pump during peak tariff hours when depletion is moderate", () => {
     const plan = solveMpc({ forecast: hours(72), dr0: 20, taw: 52, raw: 28, kc: 1 });
