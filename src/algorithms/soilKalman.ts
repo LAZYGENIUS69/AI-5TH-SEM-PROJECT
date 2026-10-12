@@ -103,21 +103,21 @@ export function processModel(x: Vec3, u: ProcessInput): { x: Vec3; F: Mat3; deep
   const F = identity();
   let deepDrainageMm = 0;
   for (let layer = 0; layer < 3; layer++) {
-    const excess = next[layer] - u.thetaFC;
+    const excess = next[layer as 0] - u.thetaFC;
     if (excess > 0) {
       const flowPct = u.drainage * excess;
       const flowMm = (flowPct / 100) * (LAYER_MM[layer] ?? 100);
-      next[layer] -= flowPct;
+      next[layer as 0] -= flowPct;
       (F[layer] as Vec3)[layer] = 1 - u.drainage;
       if (layer < 2) {
-        next[layer + 1] += toPct(flowMm, layer + 1);
+        next[(layer + 1) as 1] += toPct(flowMm, layer + 1);
         (F[layer + 1] as Vec3)[layer] = u.drainage * ((LAYER_MM[layer] ?? 100) / (LAYER_MM[layer + 1] ?? 100));
       } else deepDrainageMm += flowMm;
     }
   }
   for (let layer = 0; layer < 3; layer++) {
     const uptake = u.transpirationMm * (ROOT_UPTAKE[layer] ?? 0) + (layer === 0 ? u.evaporationMm : 0);
-    next[layer] = clamp(next[layer] - toPct(uptake, layer), u.thetaWP * 0.6, u.thetaSat);
+    next[layer as 0] = clamp(next[layer as 0] - toPct(uptake, layer), u.thetaWP * 0.6, u.thetaSat);
   }
   return { x: next, F, deepDrainageMm };
 }
