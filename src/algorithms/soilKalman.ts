@@ -142,9 +142,9 @@ export interface SensorHistory {
 
 /** Classifies a sensor using its innovation and raw history. */
 export function classifyFault(index: number, normalizedNow: number, history: SensorHistory, modelMoved: boolean): SensorFault {
-  if (Math.abs(normalizedNow) > KF_CONFIG.gateSigma) return "spike";
   const raw = history.raw.slice(-KF_CONFIG.stuckWindow).map((row) => row[index] ?? 0);
   if (raw.length >= KF_CONFIG.stuckWindow && modelMoved && Math.max(...raw) - Math.min(...raw) < 0.01) return "stuck";
+  if (Math.abs(normalizedNow) > KF_CONFIG.gateSigma) return "spike";
   const recent = history.normalized.slice(-KF_CONFIG.driftWindow).map((row) => row[index] ?? 0);
   if (recent.length >= KF_CONFIG.driftWindow) {
     const mean = recent.reduce((s, v) => s + v, 0) / recent.length;
