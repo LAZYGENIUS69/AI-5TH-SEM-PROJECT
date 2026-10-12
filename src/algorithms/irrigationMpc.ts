@@ -24,8 +24,6 @@ export interface MpcConfig {
   waterCostPerMm: number;
   /** Depletion grid resolution, mm. */
   gridMm: number;
-  /** Minimum consecutive pump hours once started (anti short-cycling). */
-  minRunH: number;
   /** Probability above which rain is counted at full forecast depth rather than expected value. */
   rainTrustProb: number;
 }
@@ -37,7 +35,6 @@ export const MPC_DEFAULTS: MpcConfig = {
   stressPenalty: 4,
   waterCostPerMm: 1.2,
   gridMm: 0.5,
-  minRunH: 1,
   rainTrustProb: 60,
 };
 
