@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchForecast, fetchHourlyForecast } from "@/services/weather";
+import { fetchForecast } from "@/services/weather";
 
 export interface FarmSettings {
   placeName: string;
@@ -58,15 +58,6 @@ export function useForecast(latitude: number, longitude: number, enabled = true)
     queryKey: ["forecast", latitude.toFixed(3), longitude.toFixed(3)],
     queryFn: () => fetchForecast(latitude, longitude),
     enabled,
-    staleTime: 15 * 60 * 1000,
-    retry: 1,
-  });
-}
-
-export function useHourlyForecast(latitude: number, longitude: number) {
-  return useQuery({
-    queryKey: ["forecast-hourly", latitude.toFixed(3), longitude.toFixed(3)],
-    queryFn: () => fetchHourlyForecast(latitude, longitude),
     staleTime: 15 * 60 * 1000,
     retry: 1,
   });
