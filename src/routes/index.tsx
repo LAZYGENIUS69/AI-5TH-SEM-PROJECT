@@ -12,6 +12,7 @@ import {
   Wind,
 } from "lucide-react";
 import { AlertTicker } from "@/components/AlertTicker";
+import { AgentFlowPanel } from "@/components/AgentFlowPanel";
 import { LocationPicker } from "@/components/LocationPicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -105,6 +106,8 @@ function Dashboard() {
       )}
 
       <AlertTicker alerts={alerts} loading={isLoading} />
+
+      <AgentFlowPanel farm={farm} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
