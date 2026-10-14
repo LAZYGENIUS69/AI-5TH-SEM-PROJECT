@@ -14,7 +14,9 @@ import { Route as AlgorithmsRouteImport } from './routes/algorithms'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as FertilizerRouteImport } from './routes/fertilizer'
 import { Route as IrrigationRouteImport } from './routes/irrigation'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const IndexRoute = IndexRouteImport.update({
@@ -42,11 +44,22 @@ const IrrigationRoute = IrrigationRouteImport.update({
   path: '/irrigation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -59,7 +72,9 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
+  '/mcp': typeof McpRoute
   '/scanner': typeof ScannerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +83,9 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
+  '/mcp': typeof McpRoute
   '/scanner': typeof ScannerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
@@ -78,7 +95,9 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/fertilizer': typeof FertilizerRoute
   '/irrigation': typeof IrrigationRoute
+  '/mcp': typeof McpRoute
   '/scanner': typeof ScannerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +108,9 @@ export interface FileRouteTypes {
     | '/chat'
     | '/fertilizer'
     | '/irrigation'
+    | '/mcp'
     | '/scanner'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +119,9 @@ export interface FileRouteTypes {
     | '/chat'
     | '/fertilizer'
     | '/irrigation'
+    | '/mcp'
     | '/scanner'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
   id:
     | '__root__'
@@ -107,7 +130,9 @@ export interface FileRouteTypes {
     | '/chat'
     | '/fertilizer'
     | '/irrigation'
+    | '/mcp'
     | '/scanner'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
   fileRoutesById: FileRoutesById
 }
@@ -117,7 +142,9 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   FertilizerRoute: typeof FertilizerRoute
   IrrigationRoute: typeof IrrigationRoute
+  McpRoute: typeof McpRoute
   ScannerRoute: typeof ScannerRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -158,11 +185,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IrrigationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scanner': {
       id: '/scanner'
       path: '/scanner'
       fullPath: '/scanner'
       preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -181,7 +222,10 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   FertilizerRoute: FertilizerRoute,
   IrrigationRoute: IrrigationRoute,
+  McpRoute: McpRoute,
   ScannerRoute: ScannerRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
