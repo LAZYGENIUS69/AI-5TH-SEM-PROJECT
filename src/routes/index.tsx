@@ -112,7 +112,7 @@ function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-foreground/70">
               <Thermometer className="size-4" /> Right now
             </CardTitle>
           </CardHeader>
@@ -137,7 +137,7 @@ function Dashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-foreground/70">
               <Droplets className="size-4" /> Irrigation today
             </CardTitle>
           </CardHeader>
@@ -160,7 +160,7 @@ function Dashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-foreground/70">
               <CloudRain className="size-4" /> Rain next 7 days
             </CardTitle>
           </CardHeader>
@@ -174,7 +174,7 @@ function Dashboard() {
               {data?.daily.map((d) => (
                 <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
                   <div
-                    className="w-full rounded-t bg-primary/70"
+                    className="w-full rounded-t bg-chart-1"
                     style={{ height: `${Math.min(40, 4 + d.precipitation * 2)}px` }}
                   />
                   <span className="text-[10px] text-muted-foreground">
@@ -188,7 +188,7 @@ function Dashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-foreground/70">
               <Sprout className="size-4" /> Last leaf scan
             </CardTitle>
           </CardHeader>

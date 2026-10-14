@@ -13,7 +13,7 @@ const LEVEL_STYLES: Record<AgentAlert["level"], { chip: string; icon: typeof Inf
 
 export function AlertTicker({ alerts, loading }: { alerts: AgentAlert[]; loading?: boolean }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
       <div className="mb-3 flex items-center gap-2">
         <span className="relative flex size-2">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60" />
@@ -44,8 +44,8 @@ export function AlertTicker({ alerts, loading }: { alerts: AgentAlert[]; loading
                   <Icon className="size-4" />
                   {a.title}
                 </div>
-                <p className="mt-1 text-sm leading-snug text-foreground/85">{a.message}</p>
-                <p className="mt-2 font-mono text-[11px] text-muted-foreground">{a.rule}</p>
+                <p className="mt-1 text-sm leading-snug text-current">{a.message}</p>
+                <p className="mt-2 font-mono text-[11px] text-foreground/80">{a.rule}</p>
               </article>
             );
           })}
