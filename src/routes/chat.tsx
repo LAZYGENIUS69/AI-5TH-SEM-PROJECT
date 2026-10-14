@@ -165,9 +165,19 @@ function Chat() {
                 title="Ask about your crop"
                 description="Nutrition, pests, irrigation, soil health — answers are grounded in indexed extension guidance."
               >
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <span className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Leaf className="size-6" />
+                  </span>
+                  <h2 className="font-display text-xl font-semibold">Ask about your crop</h2>
+                  <p className="max-w-md text-sm text-muted-foreground">
+                    Nutrition, pests, irrigation, soil health — answers are grounded in indexed
+                    extension guidance.
+                  </p>
+                </div>
+                <div className="mt-4 flex max-w-3xl flex-wrap justify-center gap-2">
                   {SUGGESTIONS.map((s) => (
-                    <Button key={s} variant="secondary" size="sm" onClick={() => ask(s)}>
+                    <Button key={s} variant="outline" size="sm" className="h-auto whitespace-normal bg-card py-2 text-left" onClick={() => ask(s)}>
                       {s}
                     </Button>
                   ))}
