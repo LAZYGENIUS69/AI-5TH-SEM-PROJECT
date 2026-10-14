@@ -15,13 +15,16 @@ import {
 export const Route = createFileRoute("/scanner")({
   head: () => ({
     meta: [
-      { title: "Crop Scanner — leaf disease detection | AgriSense" },
+      { title: "Disease Prediction — leaf disease detection | AgriSense" },
       {
         name: "description",
         content:
           "Photograph a crop leaf and get a disease name, confidence score, severity rating and remediation steps.",
       },
-      { property: "og:title", content: "Crop Scanner — leaf disease detection" },
+      {
+        property: "og:title",
+        content: "Disease Prediction — leaf disease detection",
+      },
       {
         property: "og:description",
         content: "Leaf photo in, disease name, severity and treatment steps out.",
@@ -131,7 +134,7 @@ function Scanner() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold">Crop scanner</h1>
+        <h1 className="font-display text-3xl font-semibold">Disease prediction</h1>
         <p className="text-sm text-muted-foreground">
           Fill the frame with one leaf in even daylight for the most reliable reading.
         </p>
