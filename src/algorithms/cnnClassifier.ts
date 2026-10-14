@@ -80,7 +80,7 @@ export function matchRemediation(pred: Pick<CnnPrediction, "disease" | "healthy"
 export function isModelMetrics(v: unknown): v is ModelMetrics {
   if (!v || typeof v !== "object") return false;
   const o = v as Record<string, unknown>;
-  return typeof o.test_accuracy === "number" && !!o.per_class && typeof o.per_class === "object";
+  return typeof o["test_accuracy"] === "number" && !!o["per_class"] && typeof o["per_class"] === "object";
 }
 
 export const CNN_SPEC = {

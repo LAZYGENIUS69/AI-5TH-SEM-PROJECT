@@ -2,7 +2,7 @@
 import { INPUT_SIZE, LABELS_URL, MODEL_URL } from "@/algorithms/cnnClassifier";
 
 type TfModule = typeof import("@tensorflow/tfjs");
-type AnyModel = { predict: (x: unknown) => unknown };
+type AnyModel = { predict: (x: import("@tensorflow/tfjs").Tensor) => unknown };
 
 let cache: Promise<{ tf: TfModule; model: AnyModel; labels: string[] }> | null = null;
 

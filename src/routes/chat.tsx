@@ -26,7 +26,7 @@ import { CROP_WATER_PROFILES, SOIL_PROFILES } from "@/algorithms/weatherAdvisor"
 
 export const Route = createFileRoute("/chat")({
   validateSearch: (search: Record<string, unknown>): { q?: string } =>
-    typeof search.q === "string" && search.q ? { q: search.q.slice(0, 300) } : {},
+    typeof search["q"] === "string" && search["q"] ? { q: search["q"].slice(0, 300) } : {},
   head: () => ({
     meta: [
       { title: "Ask the Agronomist — grounded AI advisory | AgriSense" },

@@ -93,7 +93,7 @@ export function evaluateFlowAlerts(
 
 export function buildAgentPrompt(input: {
   scan: AgentScan;
-  today?: IrrigationDay;
+  today?: IrrigationDay | undefined;
   alerts: FlowAlert[];
 }): string {
   const { scan, today, alerts } = input;
@@ -116,7 +116,7 @@ export interface AgentDeps {
 export interface AgentOutput {
   sources: RetrievedChunk[];
   alerts: FlowAlert[];
-  today?: IrrigationDay;
+  today?: IrrigationDay | undefined;
   plan: string;
 }
 
