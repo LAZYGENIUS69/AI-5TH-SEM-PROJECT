@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.6",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "pixel-perfect",
+      "version": "0.1.0",
+      "title": "Pixel Perfect"
+    },
+    "tools": [
+      {
+        "name": "search_guides",
+        "title": "Search agronomy guide passages",
+        "description": "Search AgriSense's built-in agronomy guide passages (TF-IDF + MMR) and return the top matches with similarity scores.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 300,
+              "description": "Farming question or keywords, e.g. 'wheat nitrogen timing'."
+            },
+            "topK": {
+              "description": "Number of passages to return (default 3).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_weather_forecast",
+        "title": "Get 7-day weather forecast",
+        "description": "Fetch the live 7-day Open-Meteo forecast (temperature, rain, humidity, wind) for a latitude/longitude.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "latitude": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90,
+              "description": "Latitude in decimal degrees."
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180,
+              "description": "Longitude in decimal degrees."
+            }
+          },
+          "required": [
+            "latitude",
+            "longitude"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_irrigation_plan",
+        "title": "Compute 7-day irrigation plan",
+        "description": "Compute a 7-day irrigation plan (Hargreaves ET, crop Kc, soil water, rain postponement) from the live forecast for a location.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "latitude": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90,
+              "description": "Field latitude."
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180,
+              "description": "Field longitude."
+            },
+            "cropId": {
+              "type": "string",
+              "enum": [
+                "rice",
+                "wheat",
+                "maize",
+                "cotton",
+                "tomato",
+                "potato",
+                "sugarcane",
+                "soybean"
+              ],
+              "description": "Crop id."
+            },
+            "soilId": {
+              "type": "string",
+              "enum": [
+                "sandy",
+                "sandy_loam",
+                "loam",
+                "clay_loam",
+                "clay"
+              ],
+              "description": "Soil type id."
+            },
+            "stage": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "development",
+                "mid",
+                "late"
+              ],
+              "description": "Growth stage."
+            },
+            "areaHa": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 10000,
+              "description": "Field area in hectares."
+            }
+          },
+          "required": [
+            "latitude",
+            "longitude",
+            "cropId",
+            "soilId",
+            "stage",
+            "areaHa"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "plan_fertilizer",
+        "title": "Plan fertilizer doses",
+        "description": "Turn a soil test into urea, DAP and MOP quantities for a crop, growth stage and area.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "cropId": {
+              "type": "string",
+              "enum": [
+                "rice",
+                "wheat",
+                "maize",
+                "cotton",
+                "sugarcane",
+                "tomato",
+                "potato",
+                "soybean"
+              ],
+              "description": "Crop id."
+            },
+            "stageId": {
+              "type": "string",
+              "enum": [
+                "basal",
+                "vegetative",
+                "reproductive",
+                "maturity"
+              ],
+              "description": "Growth stage id."
+            },
+            "areaHa": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 10000,
+              "description": "Field area in hectares."
+            },
+            "N": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2000,
+              "description": "Available soil N, kg/ha."
+            },
+            "P": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2000,
+              "description": "Available soil P, kg/ha."
+            },
+            "K": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2000,
+              "description": "Available soil K, kg/ha."
+            },
+            "organicCarbon": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "Soil organic carbon, %."
+            },
+            "pH": {
+              "type": "number",
+              "minimum": 3,
+              "maximum": 11,
+              "description": "Soil pH."
+            }
+          },
+          "required": [
+            "cropId",
+            "stageId",
+            "areaHa",
+            "N",
+            "P",
+            "K",
+            "organicCarbon",
+            "pH"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
