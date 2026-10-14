@@ -6,6 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
+import { ModelEvaluation } from "@/components/scanner/ModelEvaluation";
+import {
+  LOW_CONFIDENCE_THRESHOLD,
+  matchRemediation,
+  topPredictions,
+  type CnnPrediction,
+} from "@/algorithms/cnnClassifier";
 import {
   diagnoseLeaf,
   extractLeafFeatures,
@@ -42,77 +50,160 @@ const STEPS = [
   "Matching against the disease signature matrix",
 ];
 
+const CNN_STEPS = [
+  "Resizing frame to 224×224",
+  "Building raw RGB tensor [1,224,224,3]",
+  "Running MobileNetV2 forward pass",
+  "Ranking top-3 PlantVillage classes",
+];
+
 const SEVERITY_STYLE: Record<string, string> = {
   Low: "bg-success/15 text-success border-success/30",
   Medium: "bg-warning/20 text-warning-foreground border-warning/40",
   High: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
+type Engine = "cnn" | "heuristic";
+type ModelState = "loading" | "ready" | "error";
+
 function Scanner() {
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
+  const [cnn, setCnn] = useState<CnnPrediction[] | null>(null);
+  const [engine, setEngine] = useState<Engine>("cnn");
+  const [modelState, setModelState] = useState<ModelState>("loading");
+  const [modelError, setModelError] = useState("");
   const [step, setStep] = useState(-1);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
-
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  const analyse = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please choose a JPG, PNG or WebP photo.");
-      return;
-    }
-    setResult(null);
-    const url = URL.createObjectURL(file);
-    setPreview(url);
+  useEffect(() => {
+    let alive = true;
+    import("@/lib/cnnModel")
+      .then((m) => m.loadCnn())
+      .then(() => alive && setModelState("ready"))
+      .catch((e: unknown) => {
+        if (!alive) return;
+        setModelState("error");
+        setModelError(e instanceof Error ? e.message : "Model failed to load");
+        setEngine("heuristic");
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
-    const img = new Image();
-    img.src = url;
-    try {
-      await img.decode();
-    } catch {
-      toast.error("That file could not be read as an image.");
-      return;
-    }
-
-    const scale = 256 / Math.max(img.width || 1, img.height || 1, 1);
-    const w = Math.max(1, Math.round((img.width || 256) * Math.min(1, scale)));
-    const h = Math.max(1, Math.round((img.height || 256) * Math.min(1, scale)));
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) {
-      toast.error("This browser cannot process images.");
-      return;
-    }
-    ctx.drawImage(img, 0, 0, w, h);
-
-    for (let i = 0; i < STEPS.length; i++) {
-      setStep(i);
-      await new Promise((r) => setTimeout(r, 260));
-    }
-
-    const { data } = ctx.getImageData(0, 0, w, h);
-    const features = extractLeafFeatures(data, w, h);
-    const diagnosis = diagnoseLeaf(features);
-    setStep(-1);
-    setResult(diagnosis);
-
+  const saveScan = (entry: Record<string, unknown>) => {
     try {
       window.localStorage.setItem(
         "agrisense.lastScan",
-        JSON.stringify({
-          disease: diagnosis.top.name,
-          confidence: diagnosis.top.confidence,
-          severity: diagnosis.severity,
-          at: new Date().toISOString(),
-        }),
+        JSON.stringify({ ...entry, at: new Date().toISOString() }),
       );
     } catch {
       /* ignore */
     }
+  };
+
+  const runCnn = useCallback(async (img: HTMLImageElement, heur: DiagnosisResult) => {
+    const m = await import("@/lib/cnnModel");
+    const { scores, labels } = await m.classifyCanvas(img);
+    const top = topPredictions(scores, labels);
+    setCnn(top);
+    const best = top[0];
+    if (best)
+      saveScan({
+        crop: best.crop,
+        disease: best.healthy ? "Healthy" : best.disease,
+        confidence: best.confidence,
+        severity: best.healthy ? "Low" : heur.severity,
+        engine: "CNN (MobileNetV2)",
+      });
   }, []);
+
+  const analyse = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please choose a JPG, PNG or WebP photo.");
+        return;
+      }
+      setResult(null);
+      setCnn(null);
+      const url = URL.createObjectURL(file);
+      setPreview(url);
+
+      const img = new Image();
+      img.src = url;
+      try {
+        await img.decode();
+      } catch {
+        toast.error("That file could not be read as an image.");
+        return;
+      }
+      imgRef.current = img;
+
+      const scale = 256 / Math.max(img.width || 1, img.height || 1, 1);
+      const w = Math.max(1, Math.round((img.width || 256) * Math.min(1, scale)));
+      const h = Math.max(1, Math.round((img.height || 256) * Math.min(1, scale)));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) {
+        toast.error("This browser cannot process images.");
+        return;
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const steps = engine === "cnn" ? CNN_STEPS : STEPS;
+      for (let i = 0; i < steps.length; i++) {
+        setStep(i);
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      const { data } = ctx.getImageData(0, 0, w, h);
+      const diagnosis = diagnoseLeaf(extractLeafFeatures(data, w, h));
+      setResult(diagnosis);
+
+      if (engine === "cnn" && modelState === "ready") {
+        try {
+          await runCnn(img, diagnosis);
+        } catch {
+          toast.error("The CNN could not classify this image — showing the baseline.");
+          setEngine("heuristic");
+        }
+      } else {
+        saveScan({
+          disease: diagnosis.top.name,
+          confidence: diagnosis.top.confidence,
+          severity: diagnosis.severity,
+          engine: "Heuristic baseline",
+        });
+      }
+      setStep(-1);
+    },
+    [engine, modelState, runCnn],
+  );
+
+  const switchEngine = async (next: Engine) => {
+    if (next === "cnn" && modelState !== "ready") return;
+    setEngine(next);
+    if (next === "cnn" && imgRef.current && result && !cnn) {
+      try {
+        await runCnn(imgRef.current, result);
+      } catch {
+        toast.error("The CNN could not classify this image.");
+      }
+    } else if (next === "heuristic" && result) {
+      saveScan({
+        disease: result.top.name,
+        confidence: result.top.confidence,
+        severity: result.severity,
+        engine: "Heuristic baseline",
+      });
+    }
+  };
 
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,6 +222,8 @@ function Scanner() {
     return () => window.removeEventListener("paste", onPaste);
   }, [analyse]);
 
+  const steps = engine === "cnn" ? CNN_STEPS : STEPS;
+
   return (
     <div className="space-y-6">
       <div>
@@ -139,6 +232,41 @@ function Scanner() {
           Fill the frame with one leaf in even daylight for the most reliable reading.
         </p>
       </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Engine:</span>
+        <div className="inline-flex rounded-lg border border-border bg-muted/40 p-1">
+          <Button
+            size="sm"
+            variant={engine === "cnn" ? "default" : "ghost"}
+            disabled={modelState !== "ready"}
+            onClick={() => void switchEngine("cnn")}
+          >
+            {modelState === "loading" && <Loader2 className="size-3 animate-spin" />}
+            CNN (MobileNetV2)
+          </Button>
+          <Button
+            size="sm"
+            variant={engine === "heuristic" ? "default" : "ghost"}
+            onClick={() => void switchEngine("heuristic")}
+          >
+            Heuristic baseline
+          </Button>
+        </div>
+        {modelState === "loading" && (
+          <span className="text-xs text-muted-foreground">Downloading model…</span>
+        )}
+      </div>
+
+      {modelState === "error" && (
+        <div className="flex gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
+          <ShieldAlert className="mt-0.5 size-4 shrink-0" />
+          <p className="min-w-0 break-words">
+            CNN model unavailable ({modelError}). Using the rule-based heuristic baseline
+            automatically — its accuracy is unmeasured.
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <Card>
@@ -207,7 +335,7 @@ function Scanner() {
 
             {step >= 0 && (
               <div className="space-y-2 rounded-xl border border-border bg-muted/40 p-3">
-                {STEPS.map((s, i) => (
+                {steps.map((s, i) => (
                   <div
                     key={s}
                     className={`flex items-center gap-2 text-sm ${
@@ -234,12 +362,17 @@ function Scanner() {
             <CardTitle className="text-base">Diagnosis</CardTitle>
           </CardHeader>
           <CardContent>
-            {!result ? (
+            {result && engine === "cnn" && cnn ? (
+              <CnnResult preds={cnn} coverageNotes={result.notes} />
+            ) : !result ? (
               <p className="text-sm text-muted-foreground">
                 Upload or snap a leaf photo and the analysis appears here with treatment steps.
               </p>
             ) : (
               <div className="space-y-5">
+                <p className="text-xs text-muted-foreground">
+                  Heuristic: rule-based baseline, unmeasured accuracy.
+                </p>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="font-display text-xl font-semibold">{result.top.name}</h2>
@@ -342,6 +475,94 @@ function Scanner() {
           </CardContent>
         </Card>
       </div>
+
+      <ModelEvaluation />
+    </div>
+  );
+}
+
+function CnnResult({ preds, coverageNotes }: { preds: CnnPrediction[]; coverageNotes: string[] }) {
+  const top = preds[0];
+  if (!top) return null;
+  const card = matchRemediation(top);
+  const low = top.confidence < LOW_CONFIDENCE_THRESHOLD;
+  return (
+    <div className="space-y-5">
+      <p className="text-xs text-muted-foreground">CNN (MobileNetV2) · PlantVillage 38 classes</p>
+      <div>
+        <p className="text-sm text-muted-foreground">{top.crop}</p>
+        <h2 className={`font-display text-xl font-semibold ${top.healthy ? "text-success" : ""}`}>
+          {top.healthy ? "Healthy" : top.disease}
+        </h2>
+      </div>
+      <div className="space-y-3">
+        {preds.map((p) => (
+          <div key={p.label} className="space-y-1">
+            <div className="flex justify-between gap-3 text-sm">
+              <span className={`min-w-0 truncate ${p.healthy ? "text-success" : ""}`}>
+                {p.crop} · {p.healthy ? "Healthy" : p.disease}
+              </span>
+              <span className="font-mono">{(p.confidence * 100).toFixed(1)}%</span>
+            </div>
+            <Progress value={p.confidence * 100} />
+          </div>
+        ))}
+      </div>
+      {(low || coverageNotes.length > 0) && (
+        <div className="flex gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+          <ShieldAlert className="mt-0.5 size-4 shrink-0" />
+          <div className="space-y-1">
+            {low && <p>Low confidence - retake photo on a plain background.</p>}
+            {coverageNotes.map((n) => (
+              <p key={n}>{n}</p>
+            ))}
+          </div>
+        </div>
+      )}
+      {card ? (
+        <div className="space-y-4">
+          <div>
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Do this now
+            </h3>
+            <ul className="space-y-1.5 text-sm">
+              {card.remediation.map((r) => (
+                <li key={r} className="flex gap-2">
+                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                  {r}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Prevent it next season
+            </h3>
+            <ul className="space-y-1.5 text-sm text-muted-foreground">
+              {card.preventive.map((r) => (
+                <li key={r} className="flex gap-2">
+                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-soil" />
+                  {r}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm">
+          <p>
+            No built-in treatment card for {top.crop} {top.disease}. Confirm with a local extension
+            officer before spraying.
+          </p>
+        </div>
+      )}
+      {!top.healthy && (
+        <Button asChild variant="secondary" className="gap-2">
+          <Link to="/chat" search={{ q: `How do I manage ${top.crop} ${top.disease}?` }}>
+            Ask Agronomist about this
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }
