@@ -15,7 +15,7 @@ import {
 export const Route = createFileRoute("/scanner")({
   head: () => ({
     meta: [
-      { title: "Disease Prediction — leaf disease detection | AgriSense" },
+      { title: "Disease Detection — leaf disease diagnosis | AgriSense" },
       {
         name: "description",
         content:
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/scanner")({
       },
       {
         property: "og:title",
-        content: "Disease Prediction — leaf disease detection",
+        content: "Disease Detection — leaf disease diagnosis",
       },
       {
         property: "og:description",
@@ -134,7 +134,7 @@ function Scanner() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-semibold">Disease prediction</h1>
+        <h1 className="font-display text-3xl font-semibold">Disease detection</h1>
         <p className="text-sm text-muted-foreground">
           Fill the frame with one leaf in even daylight for the most reliable reading.
         </p>

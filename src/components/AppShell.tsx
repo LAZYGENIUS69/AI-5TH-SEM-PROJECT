@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/scanner", label: "Disease Prediction", icon: Bug },
+  { to: "/scanner", label: "Disease Detection", icon: Bug },
   { to: "/chat", label: "Agronomist", icon: MessagesSquare },
   { to: "/irrigation", label: "Irrigation", icon: Droplets },
   { to: "/fertilizer", label: "Fertilizer", icon: FlaskConical },
