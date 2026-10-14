@@ -25,6 +25,8 @@ import { useFarm } from "@/hooks/useFarm";
 import { CROP_WATER_PROFILES, SOIL_PROFILES } from "@/algorithms/weatherAdvisor";
 
 export const Route = createFileRoute("/chat")({
+  validateSearch: (search: Record<string, unknown>): { q?: string } =>
+    typeof search.q === "string" && search.q ? { q: search.q.slice(0, 300) } : {},
   head: () => ({
     meta: [
       { title: "Ask the Agronomist — grounded AI advisory | AgriSense" },
@@ -69,7 +71,8 @@ function Chat() {
   const [sources, setSources] = useState<Record<string, RetrievedChunk[]>>(() =>
     readStored<Record<string, RetrievedChunk[]>>(SOURCES_KEY, {}),
   );
-  const [input, setInput] = useState("");
+  const { q } = Route.useSearch();
+  const [input, setInput] = useState(q ?? "");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
