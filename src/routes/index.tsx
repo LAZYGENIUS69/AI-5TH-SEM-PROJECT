@@ -100,7 +100,7 @@ function Dashboard() {
       </div>
 
       {isError && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-xl border border-danger-border bg-danger-soft p-4 text-sm text-danger-soft-foreground">
           Weather could not be loaded for this location. Check your connection and try again.
         </div>
       )}

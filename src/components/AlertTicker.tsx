@@ -3,10 +3,10 @@ import type { AgentAlert } from "@/algorithms/weatherAdvisor";
 import { cn } from "@/lib/utils";
 
 const LEVEL_STYLES: Record<AgentAlert["level"], { chip: string; icon: typeof Info }> = {
-  info: { chip: "bg-primary/10 text-primary border-primary/20", icon: Info },
-  warning: { chip: "bg-warning/15 text-warning-foreground border-warning/30", icon: AlertTriangle },
+  info: { chip: "bg-success-soft text-success-soft-foreground border-success-border", icon: Info },
+  warning: { chip: "bg-warning-soft text-warning-soft-foreground border-warning-border", icon: AlertTriangle },
   critical: {
-    chip: "bg-destructive/10 text-destructive border-destructive/25",
+    chip: "bg-danger-soft text-danger-soft-foreground border-danger-border",
     icon: ShieldAlert,
   },
 };

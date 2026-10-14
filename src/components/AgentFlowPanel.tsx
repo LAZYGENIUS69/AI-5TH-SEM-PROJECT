@@ -155,7 +155,7 @@ export function AgentFlowPanel({ farm }: { farm: AgentFarm }) {
                 ) : s.status === "error" ? (
                   <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
                 ) : (
-                  <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground/50" />
+                  <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 )}
                 <div className="min-w-0">
                   <p className={s.status === "pending" ? "text-muted-foreground" : ""}>{s.label}</p>

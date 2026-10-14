@@ -58,9 +58,9 @@ const CNN_STEPS = [
 ];
 
 const SEVERITY_STYLE: Record<string, string> = {
-  Low: "bg-success/15 text-success border-success/30",
-  Medium: "bg-warning/20 text-warning-foreground border-warning/40",
-  High: "bg-destructive/10 text-destructive border-destructive/30",
+  Low: "bg-success-soft text-success-soft-foreground border-success-border",
+  Medium: "bg-warning-soft text-warning-soft-foreground border-warning-border",
+  High: "bg-danger-soft text-danger-soft-foreground border-danger-border",
 };
 
 type Engine = "cnn" | "heuristic";
@@ -259,7 +259,7 @@ function Scanner() {
       </div>
 
       {modelState === "error" && (
-        <div className="flex gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm">
+        <div className="flex gap-2 rounded-xl border border-warning-border bg-warning-soft p-3 text-sm text-warning-soft-foreground">
           <ShieldAlert className="mt-0.5 size-4 shrink-0" />
           <p className="min-w-0 break-words">
             CNN model unavailable ({modelError}). Using the rule-based heuristic baseline
@@ -339,7 +339,7 @@ function Scanner() {
                   <div
                     key={s}
                     className={`flex items-center gap-2 text-sm ${
-                      i <= step ? "text-foreground" : "text-muted-foreground/50"
+                      i <= step ? "text-foreground" : "text-muted-foreground"
                     }`}
                   >
                     {i < step ? (
@@ -395,7 +395,7 @@ function Scanner() {
                 </div>
 
                 {result.notes.length > 0 && (
-                  <div className="flex gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+                  <div className="flex gap-2 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning-soft-foreground">
                     <ShieldAlert className="mt-0.5 size-4 shrink-0" />
                     <div className="space-y-1">
                       {result.notes.map((n) => (
@@ -509,7 +509,7 @@ function CnnResult({ preds, coverageNotes }: { preds: CnnPrediction[]; coverageN
         ))}
       </div>
       {(low || coverageNotes.length > 0) && (
-        <div className="flex gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+        <div className="flex gap-2 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning-soft-foreground">
           <ShieldAlert className="mt-0.5 size-4 shrink-0" />
           <div className="space-y-1">
             {low && <p>Low confidence - retake photo on a plain background.</p>}
