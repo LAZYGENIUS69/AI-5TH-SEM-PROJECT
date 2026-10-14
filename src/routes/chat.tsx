@@ -167,7 +167,7 @@ function Chat() {
               >
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                   {SUGGESTIONS.map((s) => (
-                    <Button key={s} variant="secondary" size="sm" onClick={() => ask(s)}>
+                    <Button key={s} variant="outline" size="sm" className="h-auto whitespace-normal bg-card py-2 text-left" onClick={() => ask(s)}>
                       {s}
                     </Button>
                   ))}

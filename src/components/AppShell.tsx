@@ -56,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={`min-h-screen bg-background text-foreground ${isDark ? "dark" : ""} ${isIrrigation ? "agridss-dark" : ""}`}>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
           <Link to="/" className="flex shrink-0 items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -76,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={to}
                 to={to}
                 activeOptions={{ exact: to === "/" }}
-                className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
+                className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground data-[status=active]:bg-primary data-[status=active]:text-primary-foreground"
               >
                 <Icon className="size-4" />
                 <span className="hidden md:inline">{label}</span>
