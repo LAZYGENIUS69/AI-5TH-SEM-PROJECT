@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bug, Cpu, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
+import { Bot, Brain, Bug, Cpu, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { RAG_SPEC } from "@/algorithms/ragEngine";
 import { WEATHER_SPEC } from "@/algorithms/weatherAdvisor";
 import { FERTILIZER_SPEC } from "@/algorithms/fertilizerOptimizer";
 import { IRRIGATION_DSS_SPEC } from "@/algorithms/irrigationDss";
+import { CNN_SPEC } from "@/algorithms/cnnClassifier";
+import { AGENT_FLOW_SPEC } from "@/algorithms/agentFlow";
 
 export const Route = createFileRoute("/algorithms")({
   head: () => ({
@@ -97,6 +99,12 @@ function Algorithms() {
           <TabsTrigger value="disease" className="gap-2">
             <Bug className="size-4" /> diseaseCV.ts
           </TabsTrigger>
+          <TabsTrigger value="cnn" className="gap-2">
+            <Brain className="size-4" /> cnnClassifier.ts
+          </TabsTrigger>
+          <TabsTrigger value="agent" className="gap-2">
+            <Bot className="size-4" /> agentFlow.ts
+          </TabsTrigger>
           <TabsTrigger value="rag" className="gap-2">
             <MessagesSquare className="size-4" /> ragEngine.ts
           </TabsTrigger>
@@ -138,6 +146,52 @@ function Algorithms() {
                     </Badge>
                   ))}
                 </div>
+              </Section>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="cnn">
+          <Card>
+            <CardHeader>
+              <CardTitle>{CNN_SPEC.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{CNN_SPEC.summary}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Section title="Architecture">
+                <CodeBlock lines={CNN_SPEC.architecture} />
+              </Section>
+              <Section title="Inference pipeline">
+                <List items={CNN_SPEC.pipeline} />
+              </Section>
+              <Section title="Thresholds">
+                <KeyValues data={CNN_SPEC.thresholds} />
+              </Section>
+              <Section title="Files read at runtime">
+                <KeyValues data={CNN_SPEC.sources} />
+              </Section>
+              <Section title="Dataset">
+                <p className="text-sm">{CNN_SPEC.dataset}</p>
+              </Section>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="agent">
+          <Card>
+            <CardHeader>
+              <CardTitle>{AGENT_FLOW_SPEC.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{AGENT_FLOW_SPEC.summary}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Section title="Steps">
+                <List items={AGENT_FLOW_SPEC.steps} />
+              </Section>
+              <Section title="Rules">
+                <CodeBlock lines={AGENT_FLOW_SPEC.rules} />
+              </Section>
+              <Section title="Thresholds">
+                <KeyValues data={AGENT_FLOW_SPEC.thresholds} />
               </Section>
             </CardContent>
           </Card>
