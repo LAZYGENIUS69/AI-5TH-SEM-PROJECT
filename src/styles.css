@@ -69,22 +69,32 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-card: var(--shadow-card);
+  --color-border-strong: var(--border-strong);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-success-border: var(--success-border);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-warning-border: var(--warning-border);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-foreground: var(--danger-soft-foreground);
+  --color-danger-border: var(--danger-border);
 }
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.965 0.004 120);
-  --foreground: oklch(0.19 0.012 150);
+  --background: oklch(0.952 0.01 150);
+  --foreground: oklch(0.19 0.025 160);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.012 150);
+  --card-foreground: oklch(0.19 0.025 160);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.012 150);
-  --primary: oklch(0.42 0.1 152);
-  --primary-foreground: oklch(0.99 0.005 120);
-  --secondary: oklch(0.935 0.008 120);
+  --popover-foreground: oklch(0.19 0.025 160);
+  --primary: oklch(0.4 0.09 157);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.925 0.012 150);
   --secondary-foreground: oklch(0.22 0.015 150);
-  --muted: oklch(0.945 0.006 120);
-  --muted-foreground: oklch(0.45 0.015 150);
+  --muted: oklch(0.935 0.01 150);
+  --muted-foreground: oklch(0.4 0.02 160);
   --accent: oklch(0.925 0.03 150);
   --accent-foreground: oklch(0.3 0.08 152);
   --destructive: oklch(0.52 0.2 27);
@@ -95,23 +105,33 @@
   --warning-foreground: oklch(0.3 0.07 60);
   --soil: oklch(0.5 0.08 55);
   --soil-foreground: oklch(0.99 0.005 95);
-  --border: oklch(0.87 0.008 120);
-  --input: oklch(0.84 0.01 120);
-  --ring: oklch(0.42 0.1 152);
-  --chart-1: oklch(0.42 0.1 152);
+  --border: oklch(0.84 0.015 160);
+  --input: oklch(0.8 0.015 160);
+  --ring: oklch(0.4 0.09 157);
+  --chart-1: oklch(0.5 0.13 155);
   --chart-2: oklch(0.7 0.15 70);
   --chart-3: oklch(0.5 0.08 55);
   --chart-4: oklch(0.55 0.1 200);
   --chart-5: oklch(0.62 0.13 130);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.19 0.012 150);
-  --sidebar-primary: oklch(0.42 0.1 152);
+  --sidebar-primary: oklch(0.4 0.09 157);
   --sidebar-primary-foreground: oklch(0.99 0.005 120);
   --sidebar-accent: oklch(0.925 0.03 150);
   --sidebar-accent-foreground: oklch(0.3 0.08 152);
-  --sidebar-border: oklch(0.87 0.008 120);
+  --sidebar-border: oklch(0.84 0.015 160);
   --sidebar-ring: oklch(0.42 0.1 152);
-  --shadow-card: 0 1px 2px oklch(0.2 0.01 150 / 0.06), 0 2px 8px -2px oklch(0.2 0.01 150 / 0.06);
+  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.08), 0 4px 12px oklch(0 0 0 / 0.06);
+  --border-strong: oklch(0.66 0.025 160);
+  --success-soft: oklch(0.95 0.05 150);
+  --success-soft-foreground: oklch(0.3 0.08 155);
+  --success-border: oklch(0.85 0.1 150);
+  --warning-soft: oklch(0.96 0.06 90);
+  --warning-soft-foreground: oklch(0.36 0.09 60);
+  --warning-border: oklch(0.86 0.12 85);
+  --danger-soft: oklch(0.94 0.04 20);
+  --danger-soft-foreground: oklch(0.36 0.13 25);
+  --danger-border: oklch(0.8 0.1 20);
 }
 
 .dark {
@@ -127,7 +147,7 @@
   --secondary: oklch(0.22 0.006 145);
   --secondary-foreground: oklch(0.9288 0.0126 255.5);
   --muted: oklch(0.235 0.007 145);
-  --muted-foreground: oklch(0.72 0.012 255);
+  --muted-foreground: oklch(0.76 0.012 255);
   --accent: oklch(0.255 0.018 145);
   --accent-foreground: oklch(0.8003 0.1821 151.7);
   --destructive: oklch(0.6368 0.2078 25.3);
@@ -138,7 +158,7 @@
   --warning-foreground: oklch(0.7686 0.1647 70.1);
   --soil: oklch(0.4461 0.0263 256.8);
   --soil-foreground: oklch(0.9288 0.0126 255.5);
-  --border: oklch(0.29 0.009 145);
+  --border: oklch(0.32 0.01 145);
   --input: oklch(0.32 0.01 145);
   --ring: oklch(0.7227 0.1920 149.6);
   --chart-1: oklch(0.7227 0.1920 149.6);
@@ -154,6 +174,16 @@
   --sidebar-accent-foreground: oklch(0.9288 0.0126 255.5);
   --sidebar-border: oklch(0.29 0.009 145);
   --sidebar-ring: oklch(0.7227 0.1920 149.6);
+  --border-strong: oklch(0.45 0.012 145);
+  --success-soft: oklch(0.27 0.05 150);
+  --success-soft-foreground: oklch(0.88 0.12 150);
+  --success-border: oklch(0.42 0.09 150);
+  --warning-soft: oklch(0.28 0.05 75);
+  --warning-soft-foreground: oklch(0.88 0.12 85);
+  --warning-border: oklch(0.45 0.09 75);
+  --danger-soft: oklch(0.27 0.06 25);
+  --danger-soft-foreground: oklch(0.86 0.09 25);
+  --danger-border: oklch(0.45 0.12 25);
 }
 
 /* The AgriDSS control-room treatment stays scoped to irrigation; colors follow the selected theme. */

@@ -183,7 +183,7 @@ function Fertilizer() {
               {plan.warnings.map((w) => (
                 <div
                   key={w}
-                  className="flex gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm"
+                  className="flex gap-2 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning-soft-foreground"
                 >
                   <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                   {w}
