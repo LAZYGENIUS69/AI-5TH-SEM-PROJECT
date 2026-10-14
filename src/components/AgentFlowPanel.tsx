@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useWebMCP } from "use-webmcp-tool";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Circle, Loader2, Play, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,7 +89,34 @@ export function AgentFlowPanel({ farm }: { farm: AgentFarm }) {
     if (!out) setNoScan(true);
     setOutput(out);
     setRunning(false);
+    return out;
   };
+
+  useWebMCP({
+    name: "run_farm_analysis",
+    description:
+      "Click 'Run farm analysis' on the dashboard: runs the five-step agent and returns the step log and action plan.",
+    enabled: !running,
+    execute: () =>
+      runWebMCPTool("run_farm_analysis", async () => {
+        const out = await run();
+        if (!out) return "No leaf scan found — scan a leaf on Disease Detection first.";
+        return out.plan || "Analysis finished but the advisor returned no plan.";
+      }),
+  });
+
+  useWebMCP({
+    name: "read_farm_analysis",
+    description: "Read the current farm analysis step log and plan shown on the dashboard.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    execute: () =>
+      runWebMCPTool("read_farm_analysis", () =>
+        steps.length === 0
+          ? "No analysis has been run yet."
+          : steps.map((s) => `${s.label}: ${s.status}${s.result ? " — " + s.result : ""}`).join("\n") +
+            (plan ? `\n\nPlan:\n${plan}` : ""),
+      ),
+  });
 
   const actions = output
     ? [
