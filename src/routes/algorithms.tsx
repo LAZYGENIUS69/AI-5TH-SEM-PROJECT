@@ -168,7 +168,7 @@ function Algorithms() {
       </div>
 
       <Tabs defaultValue="disease">
-        <TabsList className="flex-wrap">
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="disease" className="gap-2">
             <Bug className="size-4" /> diseaseCV.ts
           </TabsTrigger>
