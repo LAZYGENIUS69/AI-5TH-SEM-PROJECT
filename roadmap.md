@@ -12,5 +12,6 @@
 - [x] CNN scanner engine with heuristic fallback, model evaluation panel, one-click farm analysis agent, Inspector tabs.
 - [x] Pin TensorFlow.js, validate raw inputs and model outputs, add disposable self-tests, expose timed model status/errors and retry, verify fallback scan persistence and live farm analysis; eight contract tests pass.
 - [x] Audit all project folders, upload mounts, local repository HEAD and the complete latest GitHub main tree for all seven CNN files; verify URL responses and Retry behavior. Local and GitHub HEAD match; no files found.
-- [ ] Run real model self-tests and CNN scans. Blocked: model.json, group1-shard1of3.bin, group1-shard2of3.bin, group1-shard3of3.bin, class_names.json, metrics.json and confusion_matrix.png are absent from the checkout, upload mounts and LAZYGENIUS69/pixel-perfect main (the repository's only branch).
+- [x] Move the seven uploaded CNN files from the repo root into public/model/, verify every URL serves the real file, and confirm the model loads with passing zero and noise self-tests.
+- [ ] Run a real leaf-photo CNN scan (no real leaf photo supplied yet).
 - [ ] Verify training notebook destination. Blocked: real notebook URL is not supplied.
