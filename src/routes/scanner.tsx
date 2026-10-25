@@ -37,6 +37,8 @@ export const Route = createFileRoute("/scanner")({
         property: "og:description",
         content: "Leaf photo in, disease name, severity and treatment steps out.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Scanner,
@@ -73,6 +75,9 @@ function Scanner() {
   const [engine, setEngine] = useState<Engine>("cnn");
   const [modelState, setModelState] = useState<ModelState>("loading");
   const [modelError, setModelError] = useState("");
+  const [modelLoadTime, setModelLoadTime] = useState<number | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [scanError, setScanError] = useState("");
   const [step, setStep] = useState(-1);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -81,9 +86,15 @@ function Scanner() {
 
   useEffect(() => {
     let alive = true;
+    setModelState("loading");
+    setModelError("");
     import("@/lib/cnnModel")
       .then((m) => m.loadCnn())
-      .then(() => alive && setModelState("ready"))
+      .then((loaded) => {
+        if (!alive) return;
+        setModelLoadTime(loaded.loadTimeMs);
+        setModelState("ready");
+      })
       .catch((e: unknown) => {
         if (!alive) return;
         setModelState("error");
@@ -93,7 +104,7 @@ function Scanner() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [loadAttempt]);
 
   const saveScan = (entry: Record<string, unknown>) => {
     try {
@@ -130,6 +141,7 @@ function Scanner() {
       }
       setResult(null);
       setCnn(null);
+      setScanError("");
       const url = URL.createObjectURL(file);
       setPreview(url);
 
@@ -169,9 +181,11 @@ function Scanner() {
       if (engine === "cnn" && modelState === "ready") {
         try {
           await runCnn(img, diagnosis);
-        } catch {
+        } catch (error: unknown) {
+          setScanError(error instanceof Error ? error.message : String(error));
           toast.error("The CNN could not classify this image — showing the baseline.");
           setEngine("heuristic");
+          saveScan({ disease: diagnosis.top.name, confidence: diagnosis.top.confidence, severity: diagnosis.severity, engine: "Heuristic baseline" });
         }
       } else {
         saveScan({
@@ -189,10 +203,13 @@ function Scanner() {
   const switchEngine = async (next: Engine) => {
     if (next === "cnn" && modelState !== "ready") return;
     setEngine(next);
-    if (next === "cnn" && imgRef.current && result && !cnn) {
+    if (next === "cnn" && imgRef.current && result) {
       try {
         await runCnn(imgRef.current, result);
-      } catch {
+        setScanError("");
+      } catch (error: unknown) {
+        setScanError(error instanceof Error ? error.message : String(error));
+        setEngine("heuristic");
         toast.error("The CNN could not classify this image.");
       }
     } else if (next === "heuristic" && result) {
@@ -256,6 +273,10 @@ function Scanner() {
         {modelState === "loading" && (
           <span className="text-xs text-muted-foreground">Downloading model…</span>
         )}
+        <Badge variant="outline" className={`max-w-full whitespace-normal break-words ${modelState === "ready" ? SEVERITY_STYLE.Low : modelState === "error" ? SEVERITY_STYLE.High : ""}`}>
+          Model status: {modelState === "ready" ? `Loaded (${((modelLoadTime ?? 0) / 1000).toFixed(2)} s)` : modelState === "error" ? `Failed — ${modelError}` : "Loading"}
+        </Badge>
+        {modelState === "error" && <Button size="sm" variant="secondary" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>Retry model</Button>}
       </div>
 
       {modelState === "error" && (
@@ -267,6 +288,7 @@ function Scanner() {
           </p>
         </div>
       )}
+      {scanError && <p role="alert" className="break-words text-sm text-destructive">CNN scan failed: {scanError}. Showing the heuristic baseline.</p>}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <Card>
