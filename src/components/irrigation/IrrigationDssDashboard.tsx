@@ -133,7 +133,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
         <Card className="min-w-0">
           <CardHeader><CardTitle className="text-sm">Processing pipeline</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {["Raw sensor input", "Fault detection · eq. 6, 7", "SMA filter n=6 · eq. 3", "Normalization · eq. 2", "ET₀ calculation · eq. 4, 5", "KNN inference k=5 · eq. 8", `Decision · ${state.decision}`].map((step, index) => (
+            {["Raw sensor input", "Fault detection", "SMA filter n=6", "Normalization", "ET₀ calculation", "KNN inference k=5", `Decision · ${state.decision}`].map((step, index) => (
               <div key={step} className={cn("flex items-center gap-2 rounded-md border p-2 text-xs", index === 5 && "border-primary/50 bg-primary/5", index === 6 && decisionTone)}><span className="size-2 shrink-0 rounded-full bg-primary" />{step}</div>
             ))}
           </CardContent>
