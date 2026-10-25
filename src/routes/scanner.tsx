@@ -273,7 +273,7 @@ function Scanner() {
         {modelState === "loading" && (
           <span className="text-xs text-muted-foreground">Downloading model…</span>
         )}
-        <Badge variant="outline" className={`max-w-full whitespace-normal break-words ${modelState === "ready" ? SEVERITY_STYLE.Low : modelState === "error" ? SEVERITY_STYLE.High : ""}`}>
+        <Badge variant="outline" className={`max-w-full whitespace-normal break-words ${modelState === "ready" ? SEVERITY_STYLE["Low"] : modelState === "error" ? SEVERITY_STYLE["High"] : ""}`}>
           Model status: {modelState === "ready" ? `Loaded (${((modelLoadTime ?? 0) / 1000).toFixed(2)} s)` : modelState === "error" ? `Failed — ${modelError}` : "Loading"}
         </Badge>
         {modelState === "error" && <Button size="sm" variant="secondary" onClick={() => setLoadAttempt((attempt) => attempt + 1)}>Retry model</Button>}
