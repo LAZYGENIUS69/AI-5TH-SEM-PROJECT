@@ -78,7 +78,7 @@ function Stepper({ items }: { items: readonly string[] }) {
 /** One card per formula: label, centred display math, then a "where" legend. */
 function FormulaCard({ formula }: { formula: FormulaEntry }) {
   return (
-    <div className="rounded-xl border border-border bg-muted/30 p-4">
+    <div className="min-w-0 rounded-xl border border-border bg-muted/30 p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {formula.label}
       </p>
