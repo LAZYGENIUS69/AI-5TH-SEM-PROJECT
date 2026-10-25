@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bot, Brain, Bug, Cpu, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
+import { AlertTriangle, Bot, Brain, Bug, Cpu, Droplets, FlaskConical, MessagesSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Math } from "@/components/Math";
 import { DISEASE_CV_SPEC } from "@/algorithms/diseaseCV";
 import { RAG_SPEC } from "@/algorithms/ragEngine";
 import { WEATHER_SPEC } from "@/algorithms/weatherAdvisor";
@@ -32,26 +33,10 @@ export const Route = createFileRoute("/algorithms")({
   component: Algorithms,
 });
 
-function CodeBlock({ lines }: { lines: readonly string[] }) {
-  return (
-    <pre className="overflow-x-auto rounded-xl border border-border bg-muted/60 p-4 font-mono text-[12.5px] leading-relaxed">
-      {lines.map((l) => (
-        <div key={l}>{l}</div>
-      ))}
-    </pre>
-  );
-}
-
-function KeyValues({ data }: { data: Record<string, unknown> }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {Object.entries(data).map(([k, v]) => (
-        <Badge key={k} variant="secondary" className="font-mono text-[11px]">
-          {k} = {String(v)}
-        </Badge>
-      ))}
-    </div>
-  );
+interface FormulaEntry {
+  label: string;
+  latex: string;
+  symbols: readonly { symbol: string; meaning: string; value?: string }[];
 }
 
 function Section({
@@ -62,25 +47,111 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
+    <section className="space-y-3 border-t border-border pt-5 first:border-0 first:pt-0">
       <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
         {title}
       </h3>
       {children}
+    </section>
+  );
+}
+
+/** Numbered vertical stepper: number badges joined by a thin line. */
+function Stepper({ items }: { items: readonly string[] }) {
+  return (
+    <ol className="max-w-[72ch]">
+      {items.map((step, i) => (
+        <li key={step} className="relative flex gap-3 pb-4 last:pb-0">
+          {i < items.length - 1 && (
+            <span className="absolute left-[13px] top-7 bottom-0 w-px bg-border" aria-hidden />
+          )}
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted font-mono text-[11px] font-semibold text-primary">
+            {i + 1}
+          </span>
+          <p className="pt-1 text-sm">{step}</p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** One card per formula: label, centred display math, then a "where" legend. */
+function FormulaCard({ formula }: { formula: FormulaEntry }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {formula.label}
+      </p>
+      <Math block tex={formula.latex} />
+      {formula.symbols.length > 0 && (
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th className="py-1 pr-4 font-medium">Symbol</th>
+                <th className="py-1 pr-4 font-medium">Meaning</th>
+                <th className="py-1 font-medium">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {formula.symbols.map((s) => (
+                <tr key={s.symbol} className="border-b border-border/50 last:border-0">
+                  <td className="py-1.5 pr-4">
+                    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">
+                      {s.symbol}
+                    </code>
+                  </td>
+                  <td className="py-1.5 pr-4 text-muted-foreground">{s.meaning}</td>
+                  <td className="py-1.5 text-muted-foreground">{s.value ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
 
-function List({ items }: { items: readonly string[] }) {
+function FormulaGrid({ formulas }: { formulas: readonly FormulaEntry[] }) {
   return (
-    <ol className="space-y-1.5 text-sm">
-      {items.map((s, i) => (
-        <li key={s} className="flex gap-3">
-          <span className="font-mono text-xs text-primary">{String(i + 1).padStart(2, "0")}</span>
-          <span>{s}</span>
-        </li>
+    <div className="grid gap-4 lg:grid-cols-2">
+      {formulas.map((f) => (
+        <FormulaCard key={f.label} formula={f} />
       ))}
-    </ol>
+    </div>
+  );
+}
+
+/** Parameters / thresholds as chips with inline-code identifiers. */
+function KeyValues({ data }: { data: Record<string, unknown> }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {Object.entries(data).map(([k, v]) => (
+        <Badge key={k} variant="secondary" className="gap-1.5 font-normal">
+          <code className="font-mono text-[11px]">{k}</code>
+          <span className="font-mono text-[11px] font-semibold">{String(v)}</span>
+        </Badge>
+      ))}
+    </div>
+  );
+}
+
+function Limitations({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-2 rounded-xl border border-warning-border bg-warning-soft p-3 text-sm text-warning-soft-foreground">
+      <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+      <p className="min-w-0">{children}</p>
+    </div>
+  );
+}
+
+function SpecHeader({ title, summary }: { title: string; summary: string }) {
+  return (
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      <p className="max-w-[72ch] text-sm text-muted-foreground">{summary}</p>
+    </CardHeader>
   );
 }
 
@@ -89,7 +160,7 @@ function Algorithms() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-semibold">Algorithm inspector</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
+        <p className="max-w-[72ch] text-sm text-muted-foreground">
           Each engine lives in <code className="font-mono text-xs">src/algorithms/</code> as pure,
           UI-free TypeScript. The formulas, weights and thresholds below are exported by those same
           files, so what you read here is exactly what runs.
@@ -123,29 +194,24 @@ function Algorithms() {
 
         <TabsContent value="disease">
           <Card>
-            <CardHeader>
-              <CardTitle>{DISEASE_CV_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{DISEASE_CV_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={DISEASE_CV_SPEC.title} summary={DISEASE_CV_SPEC.summary} />
             <CardContent className="space-y-6">
+              <Limitations>{DISEASE_CV_SPEC.honestyNote}</Limitations>
               <Section title="Pipeline">
-                <List items={DISEASE_CV_SPEC.stages} />
+                <Stepper items={DISEASE_CV_SPEC.stages} />
               </Section>
               <Section title="Formulas">
-                <CodeBlock lines={DISEASE_CV_SPEC.formulas} />
+                <FormulaGrid formulas={DISEASE_CV_SPEC.formulas} />
               </Section>
-              <Section title="Feature weights">
-                <KeyValues data={DISEASE_CV_SPEC.weights} />
+              <Section title="Parameters / thresholds">
+                <KeyValues data={{ ...DISEASE_CV_SPEC.weights, ...DISEASE_CV_SPEC.thresholds }} />
               </Section>
-              <Section title="Thresholds">
-                <KeyValues data={DISEASE_CV_SPEC.thresholds} />
-              </Section>
-              <Section title="Classes">
-                <div className="flex flex-wrap gap-2">
+              <Section title="Classes / outputs">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {DISEASE_CV_SPEC.classes.map((c) => (
-                    <Badge key={c} variant="outline">
+                    <div key={c} className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
                       {c}
-                    </Badge>
+                    </div>
                   ))}
                 </div>
               </Section>
@@ -155,25 +221,25 @@ function Algorithms() {
 
         <TabsContent value="cnn">
           <Card>
-            <CardHeader>
-              <CardTitle>{CNN_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{CNN_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={CNN_SPEC.title} summary={CNN_SPEC.summary} />
             <CardContent className="space-y-6">
               <Section title="Architecture">
-                <CodeBlock lines={CNN_SPEC.architecture} />
+                <Stepper items={CNN_SPEC.architecture} />
               </Section>
               <Section title="Inference pipeline">
-                <List items={CNN_SPEC.pipeline} />
+                <Stepper items={CNN_SPEC.pipeline} />
               </Section>
-              <Section title="Thresholds">
+              <Section title="Formulas">
+                <FormulaGrid formulas={CNN_SPEC.formulas} />
+              </Section>
+              <Section title="Parameters / thresholds">
                 <KeyValues data={CNN_SPEC.thresholds} />
               </Section>
               <Section title="Files read at runtime">
                 <KeyValues data={CNN_SPEC.sources} />
               </Section>
               <Section title="Dataset">
-                <p className="text-sm">{CNN_SPEC.dataset}</p>
+                <Limitations>{CNN_SPEC.dataset}</Limitations>
               </Section>
             </CardContent>
           </Card>
@@ -181,18 +247,15 @@ function Algorithms() {
 
         <TabsContent value="agent">
           <Card>
-            <CardHeader>
-              <CardTitle>{AGENT_FLOW_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{AGENT_FLOW_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={AGENT_FLOW_SPEC.title} summary={AGENT_FLOW_SPEC.summary} />
             <CardContent className="space-y-6">
               <Section title="Steps">
-                <List items={AGENT_FLOW_SPEC.steps} />
+                <Stepper items={AGENT_FLOW_SPEC.steps} />
               </Section>
               <Section title="Rules">
-                <CodeBlock lines={AGENT_FLOW_SPEC.rules} />
+                <Stepper items={AGENT_FLOW_SPEC.rules} />
               </Section>
-              <Section title="Thresholds">
+              <Section title="Parameters / thresholds">
                 <KeyValues data={AGENT_FLOW_SPEC.thresholds} />
               </Section>
             </CardContent>
@@ -201,18 +264,16 @@ function Algorithms() {
 
         <TabsContent value="rag">
           <Card>
-            <CardHeader>
-              <CardTitle>{RAG_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{RAG_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={RAG_SPEC.title} summary={RAG_SPEC.summary} />
             <CardContent className="space-y-6">
+              <Limitations>{RAG_SPEC.limitations}</Limitations>
               <Section title="Pipeline">
-                <List items={RAG_SPEC.pipeline} />
+                <Stepper items={RAG_SPEC.pipeline} />
               </Section>
-              <Section title="Scoring">
-                <CodeBlock lines={RAG_SPEC.formulas} />
+              <Section title="Formulas">
+                <FormulaGrid formulas={RAG_SPEC.formulas} />
               </Section>
-              <Section title="Retrieval configuration">
+              <Section title="Parameters / thresholds">
                 <KeyValues data={{ ...RAG_SPEC.thresholds, corpusChunks: RAG_SPEC.corpusSize }} />
               </Section>
             </CardContent>
@@ -221,18 +282,15 @@ function Algorithms() {
 
         <TabsContent value="weather">
           <Card>
-            <CardHeader>
-              <CardTitle>{WEATHER_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{WEATHER_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={WEATHER_SPEC.title} summary={WEATHER_SPEC.summary} />
             <CardContent className="space-y-6">
               <Section title="Formulas">
-                <CodeBlock lines={WEATHER_SPEC.formulas} />
+                <FormulaGrid formulas={WEATHER_SPEC.formulas} />
               </Section>
-              <Section title="Irrigation decision tree">
-                <CodeBlock lines={WEATHER_SPEC.decisionTree} />
+              <Section title="Irrigation decision gates">
+                <Stepper items={WEATHER_SPEC.decisionTree} />
               </Section>
-              <Section title="Alert thresholds">
+              <Section title="Parameters / thresholds">
                 <KeyValues data={WEATHER_SPEC.thresholds} />
               </Section>
             </CardContent>
@@ -241,22 +299,17 @@ function Algorithms() {
 
         <TabsContent value="sensor">
           <Card>
-            <CardHeader>
-              <CardTitle>{IRRIGATION_DSS_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{IRRIGATION_DSS_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={IRRIGATION_DSS_SPEC.title} summary={IRRIGATION_DSS_SPEC.summary} />
             <CardContent className="space-y-6">
+              <Limitations>{IRRIGATION_DSS_SPEC.limitations}</Limitations>
               <Section title="Formulas">
-                <CodeBlock lines={IRRIGATION_DSS_SPEC.formulas} />
+                <FormulaGrid formulas={IRRIGATION_DSS_SPEC.formulas} />
               </Section>
-              <Section title="Decision tree">
-                <CodeBlock lines={IRRIGATION_DSS_SPEC.decisionTree} />
+              <Section title="Decision gates">
+                <Stepper items={IRRIGATION_DSS_SPEC.decisionTree} />
               </Section>
-              <Section title="Sensor weights">
-                <KeyValues data={IRRIGATION_DSS_SPEC.weights} />
-              </Section>
-              <Section title="Thresholds">
-                <KeyValues data={IRRIGATION_DSS_SPEC.thresholds} />
+              <Section title="Parameters / thresholds">
+                <KeyValues data={{ ...IRRIGATION_DSS_SPEC.weights, ...IRRIGATION_DSS_SPEC.thresholds }} />
               </Section>
             </CardContent>
           </Card>
@@ -264,22 +317,40 @@ function Algorithms() {
 
         <TabsContent value="fertilizer">
           <Card>
-            <CardHeader>
-              <CardTitle>{FERTILIZER_SPEC.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{FERTILIZER_SPEC.summary}</p>
-            </CardHeader>
+            <SpecHeader title={FERTILIZER_SPEC.title} summary={FERTILIZER_SPEC.summary} />
             <CardContent className="space-y-6">
               <Section title="Formulas">
-                <CodeBlock lines={FERTILIZER_SPEC.formulas} />
+                <FormulaGrid formulas={FERTILIZER_SPEC.formulas} />
               </Section>
-              <Section title="Recovery efficiency">
-                <KeyValues data={FERTILIZER_SPEC.weights} />
+              <Section title="Phosphorus availability by soil pH">
+                <div className="max-w-[72ch] overflow-x-auto rounded-xl border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <th className="px-3 py-2 font-medium">pH band</th>
+                        <th className="px-3 py-2 font-medium">Factor</th>
+                        <th className="px-3 py-2 font-medium">Interpretation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {FERTILIZER_SPEC.phTable.map((band, i, all) => (
+                        <tr key={band.max} className="border-b border-border/50 last:border-0">
+                          <td className="px-3 py-2 font-mono text-xs">
+                            {i === 0 ? `≤ ${band.max}` : `${all[i - 1]!.max} – ${band.max}`}
+                          </td>
+                          <td className="px-3 py-2 font-mono text-xs font-semibold">{band.factor}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{band.label}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Section>
-              <Section title="Thresholds">
-                <KeyValues data={FERTILIZER_SPEC.thresholds} />
+              <Section title="Parameters / thresholds">
+                <KeyValues data={{ ...FERTILIZER_SPEC.weights, ...FERTILIZER_SPEC.thresholds }} />
               </Section>
               <Section title="Stage nutrient shares">
-                <List items={FERTILIZER_SPEC.stages} />
+                <Stepper items={FERTILIZER_SPEC.stages} />
               </Section>
             </CardContent>
           </Card>
