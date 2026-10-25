@@ -16,6 +16,7 @@ import {
   CROP_TARGETS,
   GROWTH_STAGES,
   optimizeFertilizer,
+  PH_P_AVAILABILITY,
   phFactor,
   type SoilTest,
 } from "@/algorithms/fertilizerOptimizer";
@@ -147,6 +148,31 @@ function Fertilizer() {
               pH {soil.pH.toFixed(1)} — {ph.label}. Phosphorus availability factor{" "}
               <span className="font-mono">{ph.factor}</span>.
             </p>
+            <div className="overflow-x-auto rounded-lg border border-border sm:col-span-2">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40 text-left uppercase tracking-wide text-muted-foreground">
+                    <th className="px-3 py-1.5 font-medium">pH band</th>
+                    <th className="px-3 py-1.5 font-medium">P factor</th>
+                    <th className="px-3 py-1.5 font-medium">Interpretation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PH_P_AVAILABILITY.map((band, i, all) => (
+                    <tr
+                      key={band.max}
+                      className={`border-b border-border/50 last:border-0 ${band.factor === ph.factor && band.label === ph.label ? "bg-primary/5" : ""}`}
+                    >
+                      <td className="px-3 py-1.5 font-mono">
+                        {i === 0 ? `≤ ${band.max}` : `${all[i - 1]!.max} – ${band.max}`}
+                      </td>
+                      <td className="px-3 py-1.5 font-mono font-semibold">{band.factor}</td>
+                      <td className="px-3 py-1.5 text-muted-foreground">{band.label}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
 
