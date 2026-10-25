@@ -15,3 +15,4 @@
 - [x] Move the seven uploaded CNN files from the repo root into public/model/, verify every URL serves the real file, and confirm the model loads with passing zero and noise self-tests.
 - [ ] Run a real leaf-photo CNN scan (no real leaf photo supplied yet).
 - [ ] Verify training notebook destination. Blocked: real notebook URL is not supplied.
+- [x] Typeset all algorithm/formula content with KaTeX (lazy-loaded, pinned 0.19.1): SPEC formulas now carry latex + symbol legends, Inspector tabs use steppers/formula cards/limitation callouts, fertilizer pH table, dashboard inline math; verified light/dark at 1280 and 390 with no overflow or console errors.

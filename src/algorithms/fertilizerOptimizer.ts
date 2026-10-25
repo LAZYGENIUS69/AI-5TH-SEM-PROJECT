@@ -230,14 +230,52 @@ export const FERTILIZER_SPEC = {
   summary:
     "Stage-weighted crop requirement minus plant-available soil supply and mineralisation credit, divided by apparent recovery efficiency, then converted to straight fertilizer products.",
   formulas: [
-    "target_i = seasonRequirement_i × stageShare_i",
-    "creditN = 20 × SOC% × stageShare_N        (mineralisation credit, kg/ha)",
-    "available_i = soilTest_i × availabilityFactor_i × stageShare_i",
-    "availabilityFactor_P = f(pH)  →  0.60 / 0.85 / 1.00 / 0.80 / 0.65",
-    "deficit_i = max(0, target_i − available_i − credit_i)",
-    "applied_i = deficit_i / recoveryEfficiency_i",
-    "DAP = applied_P / 0.46 ;  Urea = max(0, (applied_N − 0.18·DAP)) / 0.46 ;  MOP = applied_K / 0.60",
+    {
+      label: "Stage target",
+      latex: "T=R_{season}\\cdot s_{stage}",
+      symbols: [
+        { symbol: "R_season", meaning: "Season-long crop requirement", value: "kg/ha elemental" },
+        { symbol: "s_stage", meaning: "Share of the season need due at this stage" },
+      ],
+    },
+    {
+      label: "Nitrogen mineralisation credit",
+      latex: `C_N=${SOC_NITROGEN_CREDIT}\\cdot \\mathrm{SOC}\\%\\cdot s_{stage}`,
+      symbols: [
+        { symbol: "SOC%", meaning: "Soil organic carbon", value: "%" },
+        { symbol: String(SOC_NITROGEN_CREDIT), meaning: "kg N/ha mineralised per 1% SOC over a season" },
+      ],
+    },
+    {
+      label: "Plant-available soil supply",
+      latex: "A_i=\\mathrm{soilTest}_i\\cdot f_i\\cdot s_{stage}",
+      symbols: [
+        { symbol: "f_i", meaning: "Availability factor (pH-dependent for P, else 1)" },
+      ],
+    },
+    {
+      label: "Deficit",
+      latex: "\\Delta=\\max(0,\\,T-A-C)",
+      symbols: [
+        { symbol: "T, A, C", meaning: "Target, available supply, credit", value: "kg/ha" },
+      ],
+    },
+    {
+      label: "Elemental quantity to apply",
+      latex: `U=\\Delta/\\eta,\\quad \\eta_N=${NUTRIENT_USE_EFFICIENCY.N},\\ \\eta_P=${NUTRIENT_USE_EFFICIENCY.P},\\ \\eta_K=${NUTRIENT_USE_EFFICIENCY.K}`,
+      symbols: [
+        { symbol: "η", meaning: "Apparent recovery efficiency", value: `N ${NUTRIENT_USE_EFFICIENCY.N} · P ${NUTRIENT_USE_EFFICIENCY.P} · K ${NUTRIENT_USE_EFFICIENCY.K}` },
+      ],
+    },
+    {
+      label: "Product conversion",
+      latex: `\\mathrm{DAP}=U_P/${FERTILIZER_PRODUCTS.dap.p},\\quad \\mathrm{Urea}=\\max\\big(0,\\,U_N-${FERTILIZER_PRODUCTS.dap.n}\\cdot \\mathrm{DAP}\\big)/${FERTILIZER_PRODUCTS.urea.n},\\quad \\mathrm{MOP}=U_K/${FERTILIZER_PRODUCTS.mop.k}`,
+      symbols: [
+        { symbol: "0.46 / 0.18 / 0.60", meaning: "Nutrient content of urea (N), DAP (N and P), MOP (K)" },
+      ],
+    },
   ],
+  phTable: PH_P_AVAILABILITY,
   weights: NUTRIENT_USE_EFFICIENCY,
   thresholds: {
     socNitrogenCredit: SOC_NITROGEN_CREDIT,

@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { useIrrigationSimulation } from "@/hooks/useIrrigationSimulation";
 import type { SensorCropType } from "@/algorithms/irrigationDss";
+import { Math as Tex } from "@/components/Math";
 import { cn } from "@/lib/utils";
 
 const SENSOR_CROPS: { value: SensorCropType; label: string }[] = [
@@ -36,7 +37,7 @@ const SENSOR_CROPS: { value: SensorCropType; label: string }[] = [
   { value: "maize", label: "Maize" },
 ];
 
-function Metric({ label, value, detail, warning }: { label: string; value: string; detail: string; warning?: boolean }) {
+function Metric({ label, value, detail, warning }: { label: string; value: string; detail: React.ReactNode; warning?: boolean }) {
   return (
     <Card className={cn(warning && "border-warning/60 bg-warning/5")}>
       <CardHeader className="pb-1"><p className="text-xs font-medium uppercase text-muted-foreground">{label}</p></CardHeader>
@@ -122,9 +123,9 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="SM fused · eq. 1" value={`${state.smFused.toFixed(1)}%`} detail="w₁=0.5 · w₂=0.3 · w₃=0.2" />
-        <Metric label="SM normalized · eq. 2" value={`${state.smNorm.toFixed(1)}%`} detail="Field capacity threshold: 45%" warning={state.smNorm < 45} />
-        <Metric label="ET₀ / ETc · eq. 4" value={state.et0.toFixed(2)} detail={`ETc: ${state.etc.toFixed(2)} mm/day`} />
+        <Metric label="SM fused" value={`${state.smFused.toFixed(1)}%`} detail={<Tex tex="0.5\,SM_{10}+0.3\,SM_{20}+0.2\,SM_{30}" />} />
+        <Metric label="SM normalized" value={`${state.smNorm.toFixed(1)}%`} detail="Field capacity threshold: 45%" warning={state.smNorm < 45} />
+        <Metric label="ET₀ / ETc" value={state.et0.toFixed(2)} detail={`ETc: ${state.etc.toFixed(2)} mm/day`} />
         <Metric label="Temperature / humidity" value={`${state.sensors.temperature.toFixed(1)}°C`} detail={`Relative humidity: ${state.sensors.humidity.toFixed(1)}%`} />
       </div>
 
@@ -132,7 +133,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
         <Card className="min-w-0">
           <CardHeader><CardTitle className="text-sm">Processing pipeline</CardTitle></CardHeader>
           <CardContent className="space-y-2">
-            {["Raw sensor input", "Fault detection · eq. 6, 7", "SMA filter n=6 · eq. 3", "Normalization · eq. 2", "ET₀ calculation · eq. 4, 5", "KNN inference k=5 · eq. 8", `Decision · ${state.decision}`].map((step, index) => (
+            {["Raw sensor input", "Fault detection", "SMA filter n=6", "Normalization", "ET₀ calculation", "KNN inference k=5", `Decision · ${state.decision}`].map((step, index) => (
               <div key={step} className={cn("flex items-center gap-2 rounded-md border p-2 text-xs", index === 5 && "border-primary/50 bg-primary/5", index === 6 && decisionTone)}><span className="size-2 shrink-0 rounded-full bg-primary" />{step}</div>
             ))}
           </CardContent>
@@ -169,7 +170,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="min-w-0"><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><span className="size-2 animate-pulse rounded-full bg-primary" /> Serial Monitor — 115200 baud</CardTitle></CardHeader><CardContent><div className="h-48 overflow-y-auto rounded-md border bg-background p-3 font-mono text-xs leading-6 text-primary">{state.serialLog.length ? state.serialLog.map((line) => <div key={line}>{line}</div>) : <span className="text-muted-foreground">Waiting for readings…</span>}</div></CardContent></Card>
-        <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Algorithm performance comparison</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">Algorithm</th><th>Accuracy</th><th>RMSE</th><th>Interpretability</th></tr></thead><tbody>{[{ name: "KNN (k=5)", key: "KNN", accuracy: "98.3%", rmse: "0.12", rating: "High" }, { name: "Naive Bayes", key: "NAIVE_BAYES", accuracy: "95.1%", rmse: "0.18", rating: "Very high" }, { name: "Logistic regression", key: "LOGISTIC_REG", accuracy: "92.4%", rmse: "0.22", rating: "High" }, { name: "Neural net", key: "NEURAL_NET", accuracy: "97.8%", rmse: "0.14", rating: "Low" }].map((row) => <tr key={row.name} className={cn("border-b", row.key === state.model && "bg-primary/5")}><td className="py-3 font-medium">{row.name} {row.key === state.model && <Badge className="ml-1">Active</Badge>}</td><td className="font-mono">{row.accuracy}</td><td className="font-mono">{row.rmse}</td><td>{row.rating}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">KNN is selected for accuracy with interpretable neighbor evidence.</p></CardContent></Card>
+        <Card className="min-w-0"><CardHeader><CardTitle className="text-sm">Algorithm performance comparison</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead><tr className="border-b text-muted-foreground"><th className="pb-2">Algorithm</th><th>Accuracy</th><th>RMSE</th><th>Interpretability</th></tr></thead><tbody>{[{ name: "KNN (k=5)", key: "KNN", accuracy: "98.3%", rmse: "0.12", rating: "High" }, { name: "Naive Bayes", key: "NAIVE_BAYES", accuracy: "95.1%", rmse: "0.18", rating: "Very high" }, { name: "Logistic regression", key: "LOGISTIC_REG", accuracy: "92.4%", rmse: "0.22", rating: "High" }, { name: "Neural net", key: "NEURAL_NET", accuracy: "97.8%", rmse: "0.14", rating: "Low" }].map((row) => <tr key={row.name} className={cn("border-b", row.key === state.model && "bg-primary/5")}><td className="py-3 font-medium">{row.name} {row.key === state.model && <Badge className="ml-1">Active</Badge>}</td><td className="font-mono">{row.accuracy}</td><td className="font-mono">{row.rmse}</td><td>{row.rating}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">Reference figures from the original AgriDSS project — not measured by this app. KNN is selected for accuracy with interpretable neighbor evidence.</p></CardContent></Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">

@@ -13,3 +13,4 @@
 - Keep light/dark theming app-wide through semantic tokens; reserve AgriDSS control-room treatments for the irrigation dashboard so every page follows the user's selected mode.
 - Load TensorFlow.js only via dynamic import from src/lib/cnnModel.ts; validate labels, input shape and output probabilities, run disposable on-load self-tests and cache only successful loads. CNN label/metrics helpers stay pure in src/algorithms/cnnClassifier.ts so SSR never pulls tfjs and the Inspector reads the same constants.
 - The one-click agent orchestration lives in src/algorithms/agentFlow.ts with side effects injected (forecast fetch, LLM stream) so it stays React-free and testable.
+- Render all math through src/components/Math.tsx (lazy KaTeX, throwOnError/trust off, plain-text fallback); SPEC formula entries carry `latex` + `symbols` with values interpolated from the exported constants, so the Inspector never hardcodes numbers.

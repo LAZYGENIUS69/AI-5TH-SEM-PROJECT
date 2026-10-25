@@ -295,19 +295,69 @@ export const WEATHER_SPEC = {
   summary:
     "Hargreaves–Samani reference ET scaled by stage crop coefficient, run through a daily root-zone water balance with an effective-rainfall model and a rain-delay decision tree.",
   formulas: [
-    "ET₀ = 0.0023 · (Tmean + 17.8) · √(Tmax − Tmin) · Ra · 0.408    [Hargreaves–Samani, mm/d]",
-    "Ra = (24·60/π)·Gsc·dr·(ωs·sin φ·sin δ + cos φ·cos δ·sin ωs)",
-    "ETc = Kc(stage) · ET₀",
-    "Peff = 0.75 · (min(P, 25) + 0.30·max(0, P − 25))",
-    "RAW = AWC(mm/m) · rootDepth(m) · depletionFraction",
-    "D(t) = max(0, D(t−1) + ETc − Peff)",
-    "irrigation depth = D(t) when D(t) ≥ RAW ;  1 mm·ha = 10 000 L",
+    {
+      label: "Reference evapotranspiration (Hargreaves–Samani)",
+      latex: "ET_0=0.0023\\,(T_{mean}+17.8)\\,\\sqrt{T_{max}-T_{min}}\\,R_a\\cdot 0.408",
+      symbols: [
+        { symbol: "T_mean, T_max, T_min", meaning: "Daily mean / max / min temperature", value: "°C" },
+        { symbol: "R_a", meaning: "Extraterrestrial radiation", value: "MJ m⁻² d⁻¹" },
+        { symbol: "0.408", meaning: "MJ m⁻² d⁻¹ → mm/d conversion" },
+      ],
+    },
+    {
+      label: "Extraterrestrial radiation",
+      latex: "R_a=\\tfrac{24\\cdot 60}{\\pi}\\,G_{sc}\\,d_r\\,(\\omega_s\\sin\\varphi\\sin\\delta+\\cos\\varphi\\cos\\delta\\sin\\omega_s)",
+      symbols: [
+        { symbol: "G_sc", meaning: "Solar constant", value: "0.082 MJ m⁻² min⁻¹" },
+        { symbol: "φ, δ, ω_s", meaning: "Latitude, solar declination, sunset hour angle" },
+        { symbol: "d_r", meaning: "Inverse relative Earth–Sun distance" },
+      ],
+    },
+    {
+      label: "Crop evapotranspiration",
+      latex: "ET_c=K_c(\\mathrm{stage})\\cdot ET_0",
+      symbols: [
+        { symbol: "K_c", meaning: "Crop coefficient for the growth stage", value: "per crop, 0.35–1.25" },
+      ],
+    },
+    {
+      label: "Effective rainfall",
+      latex: `P_{eff}=${EFFECTIVE_RAIN_FACTOR}\\,\\big(\\min(P,\\,${RUNOFF_THRESHOLD_MM})+0.30\\,\\max(0,\\,P-${RUNOFF_THRESHOLD_MM})\\big)`,
+      symbols: [
+        { symbol: "P", meaning: "Forecast rainfall", value: "mm" },
+        { symbol: String(RUNOFF_THRESHOLD_MM), meaning: "Runoff threshold — excess is discounted to 30%", value: "mm" },
+        { symbol: String(EFFECTIVE_RAIN_FACTOR), meaning: "Share of rain stored in the root zone" },
+      ],
+    },
+    {
+      label: "Readily available water",
+      latex: "RAW=AWC\\,[\\mathrm{mm/m}]\\cdot z_r\\,[\\mathrm{m}]\\cdot p",
+      symbols: [
+        { symbol: "AWC", meaning: "Soil available water capacity", value: "70–200 mm/m" },
+        { symbol: "z_r", meaning: "Crop root depth", value: "0.5–1.5 m" },
+        { symbol: "p", meaning: "Allowable depletion fraction", value: "0.2–0.65" },
+      ],
+    },
+    {
+      label: "Root-zone depletion (daily water balance)",
+      latex: "D_t=\\max\\!\\big(0,\\;D_{t-1}+ET_{c,t}-P_{eff,t}\\big)",
+      symbols: [
+        { symbol: "D_t", meaning: "Depletion after day t", value: "mm" },
+      ],
+    },
+    {
+      label: "Irrigation depth",
+      latex: "I_t=D_t\\quad\\text{when }D_t\\ge RAW;\\qquad 1\\ \\mathrm{mm\\cdot ha}=10\\,000\\ \\mathrm{L}",
+      symbols: [
+        { symbol: "I_t", meaning: "Water applied on day t", value: "mm" },
+      ],
+    },
   ],
   decisionTree: [
-    "if D < 0.6·RAW                    → hold",
-    "else if rain(t+1) ≥ 8 mm          → postpone (rain delay)",
-    "else if D ≥ RAW                   → irrigate to field capacity",
-    "else                              → hold, irrigation due in 1–2 days",
+    `if D < 0.6·RAW → hold`,
+    `else if rain(t+1) ≥ ${RAIN_POSTPONE_MM} mm → postpone (rain delay)`,
+    "else if D ≥ RAW → irrigate to field capacity",
+    "else → hold, irrigation due in 1–2 days",
   ],
   thresholds: {
     rainPostponeMm: RAIN_POSTPONE_MM,

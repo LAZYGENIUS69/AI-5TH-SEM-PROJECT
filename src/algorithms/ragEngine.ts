@@ -309,19 +309,54 @@ export const RAG_SPEC = {
   title: "Retrieval-augmented generation engine",
   summary:
     "TF-IDF sparse vector index over an agricultural extension corpus, cosine retrieval, MMR re-ranking for non-redundant evidence, then grounded generation with inline citations.",
+  limitations:
+    "The corpus is 15 short hand-written passages in an ICAR-style tone, not verbatim official documents. Verify rates before acting.",
   formulas: [
-    "tf(t,d) = 1 + log(count(t,d))                       [sub-linear scaling]",
-    "idf(t)  = log((N + 1) / (df(t) + 0.5)) + 1          [smoothed]",
-    "w(t,d)  = tf(t,d) · idf(t),   then  d̂ = d / ‖d‖₂",
-    "sim(q,d) = q̂ · d̂                                    [cosine, unit vectors]",
-    "MMR = argmax_d [ λ·sim(q,d) − (1−λ)·max_{s∈S} sim(d,s) ],  λ = 0.72",
+    {
+      label: "Term frequency (sub-linear)",
+      latex: "\\mathrm{tf}(t,d)=1+\\log\\big(\\mathrm{count}(t,d)\\big)",
+      symbols: [
+        { symbol: "count(t,d)", meaning: "Occurrences of term t in chunk d" },
+      ],
+    },
+    {
+      label: "Inverse document frequency (smoothed)",
+      latex: "\\mathrm{idf}(t)=\\log\\!\\dfrac{N+1}{\\mathrm{df}(t)+0.5}+1",
+      symbols: [
+        { symbol: "N", meaning: "Chunks in the corpus", value: String(CORPUS.length) },
+        { symbol: "df(t)", meaning: "Chunks containing term t" },
+      ],
+    },
+    {
+      label: "Vector weight + normalisation",
+      latex: "w(t,d)=\\mathrm{tf}(t,d)\\cdot\\mathrm{idf}(t),\\qquad \\hat{\\mathbf d}=\\dfrac{\\mathbf d}{\\lVert\\mathbf d\\rVert_2}",
+      symbols: [
+        { symbol: "d̂", meaning: "Unit-length chunk vector" },
+      ],
+    },
+    {
+      label: "Cosine similarity",
+      latex: "\\cos(\\mathbf q,\\mathbf d)=\\dfrac{\\mathbf q\\cdot\\mathbf d}{\\lVert\\mathbf q\\rVert\\,\\lVert\\mathbf d\\rVert}=\\hat{\\mathbf q}\\cdot\\hat{\\mathbf d}",
+      symbols: [
+        { symbol: "q", meaning: "Query vector" },
+        { symbol: "d", meaning: "Chunk vector" },
+      ],
+    },
+    {
+      label: "MMR re-ranking",
+      latex: `\\mathrm{MMR}=\\arg\\max_{d\\in R\\setminus S}\\Big[\\lambda\\,\\mathrm{sim}(d,q)-(1-\\lambda)\\max_{d'\\in S}\\mathrm{sim}(d,d')\\Big],\\quad \\lambda=${RETRIEVAL_CONFIG.mmrLambda}`,
+      symbols: [
+        { symbol: "λ", meaning: "Relevance vs diversity trade-off", value: String(RETRIEVAL_CONFIG.mmrLambda) },
+        { symbol: "R ∖ S", meaning: "Candidates not yet selected" },
+      ],
+    },
   ],
   pipeline: [
     "Tokenise + stopword removal (lowercase, ≥3 chars)",
     "Build IDF over the corpus, embed each chunk, L2-normalise",
     "Embed the query in the same space",
-    "Cosine scoring → top 8 candidate pool, drop score < 0.06",
-    "MMR re-rank → top 3 passages shown to the user",
+    `Cosine scoring → top ${RETRIEVAL_CONFIG.candidatePool} candidate pool, drop score < ${RETRIEVAL_CONFIG.minScore}`,
+    `MMR re-rank → top ${RETRIEVAL_CONFIG.topK} passages shown to the user`,
     "Passages injected as numbered context into the model prompt",
   ],
   thresholds: RETRIEVAL_CONFIG,

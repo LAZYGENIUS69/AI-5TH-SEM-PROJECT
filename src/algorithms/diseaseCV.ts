@@ -386,24 +386,70 @@ export function diagnoseLeaf(features: LeafFeatures): DiagnosisResult {
 
 /** Machine-readable spec rendered by the Algorithm Inspector. */
 export const DISEASE_CV_SPEC = {
-  title: "Leaf disease detection pipeline",
+  title: "Rule-based baseline scanner",
   summary:
     "Colour-space segmentation and weighted signature matching over a 7-class disease matrix, with softmax confidence and a composite damage index for severity.",
+  honestyNote: "Hand-tuned rules, accuracy not measured. The CNN is the primary engine.",
   stages: [
     "Downscale frame to 256 px on the long edge and read RGBA pixels",
     "RGB → HSV conversion per pixel",
-    "Leaf mask: h ∈ [20°,170°] ∧ s > 0.12 ∧ v > 0.08 (plus a brown-tissue branch)",
+    "Leaf mask keeps plant-coloured pixels, drops the background",
     "Feature extraction: chlorosis, necrosis, lesion density, greenness, texture energy",
     "Weighted Euclidean distance to each disease centroid",
     "Softmax over −distance/τ → confidence",
     "Composite damage index → severity band",
   ],
   formulas: [
-    "d(x, c) = sqrt( Σᵢ wᵢ (xᵢ − cᵢ)² / Σᵢ wᵢ )",
-    "P(class k) = exp(−d_k / τ) / Σⱼ exp(−d_j / τ),  τ = 0.12",
-    "damage = 0.45·necrosis + 0.35·lesionDensity + 0.20·chlorosis",
-    "severity = Low if damage < 0.18, Medium if < 0.38, else High",
-    "textureEnergy = min(1, 6 · mean |∇I| over a 1-in-3 pixel lattice)",
+    {
+      label: "Leaf mask",
+      latex: "h\\in[20^\\circ,170^\\circ]\\ \\wedge\\ s>0.12\\ \\wedge\\ v>0.08",
+      symbols: [
+        { symbol: "h", meaning: "Pixel hue", value: "20°–170° kept" },
+        { symbol: "s", meaning: "Saturation", value: "> 0.12" },
+        { symbol: "v", meaning: "Brightness (value)", value: "> 0.08" },
+      ],
+    },
+    {
+      label: "Weighted distance to a disease signature",
+      latex: "d(\\mathbf{x},\\mathbf{c})=\\sqrt{\\dfrac{\\sum_i w_i\\,(x_i-c_i)^2}{\\sum_i w_i}}",
+      symbols: [
+        { symbol: "x_i", meaning: "Observed feature (chlorosis, necrosis, …)" },
+        { symbol: "c_i", meaning: "Signature centroid for the disease" },
+        { symbol: "w_i", meaning: "Feature weight", value: Object.entries(FEATURE_WEIGHTS).map(([k, v]) => `${k} ${v}`).join(" · ") },
+      ],
+    },
+    {
+      label: "Confidence (softmax over distances)",
+      latex: `P(k)=\\dfrac{e^{-d_k/\\tau}}{\\sum_j e^{-d_j/\\tau}},\\quad \\tau=${SOFTMAX_TEMPERATURE}`,
+      symbols: [
+        { symbol: "d_k", meaning: "Distance to class k" },
+        { symbol: "τ", meaning: "Softmax temperature", value: String(SOFTMAX_TEMPERATURE) },
+      ],
+    },
+    {
+      label: "Composite damage index",
+      latex: "D=0.45\\,n+0.35\\,\\ell+0.20\\,c",
+      symbols: [
+        { symbol: "n", meaning: "Necrosis fraction", value: "weight 0.45" },
+        { symbol: "ℓ", meaning: "Lesion density", value: "weight 0.35" },
+        { symbol: "c", meaning: "Chlorosis fraction", value: "weight 0.20" },
+      ],
+    },
+    {
+      label: "Severity band",
+      latex: `\\mathrm{severity}=\\begin{cases}\\text{Low} & D<${SEVERITY_THRESHOLDS.low}\\\\ \\text{Medium} & ${SEVERITY_THRESHOLDS.low}\\le D<${SEVERITY_THRESHOLDS.medium}\\\\ \\text{High} & D\\ge ${SEVERITY_THRESHOLDS.medium}\\end{cases}`,
+      symbols: [
+        { symbol: "D", meaning: "Composite damage index" },
+        { symbol: "0.18 / 0.38", meaning: "Band edges", value: `${SEVERITY_THRESHOLDS.low} / ${SEVERITY_THRESHOLDS.medium}` },
+      ],
+    },
+    {
+      label: "Texture energy",
+      latex: "E_{tex}=\\min\\!\\left(1,\\;6\\cdot\\overline{|\\nabla I|}\\right)",
+      symbols: [
+        { symbol: "|∇I|", meaning: "Local brightness gradient, sampled on a 1-in-3 pixel lattice" },
+      ],
+    },
   ],
   weights: FEATURE_WEIGHTS,
   thresholds: {
