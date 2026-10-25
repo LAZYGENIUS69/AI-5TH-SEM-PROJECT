@@ -41,6 +41,8 @@ export const Route = createFileRoute("/")({
         content:
           "Live weather alerts, today's irrigation decision and crop health status for your field.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,

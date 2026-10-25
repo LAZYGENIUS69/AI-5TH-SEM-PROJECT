@@ -40,6 +40,8 @@ export const Route = createFileRoute("/chat")({
         property: "og:description",
         content: "Retrieval-augmented crop advice with the source passages shown in the open.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Chat,

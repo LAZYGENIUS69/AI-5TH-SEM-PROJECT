@@ -35,6 +35,8 @@ export const Route = createFileRoute("/fertilizer")({
         property: "og:description",
         content: "Soil test in, precise fertilizer quantities and application timing out.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Fertilizer,

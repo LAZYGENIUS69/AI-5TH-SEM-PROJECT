@@ -25,6 +25,8 @@ export const Route = createFileRoute("/algorithms")({
         property: "og:description",
         content: "Formulas, scoring weights and rule trees for all four advisory engines.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Algorithms,
