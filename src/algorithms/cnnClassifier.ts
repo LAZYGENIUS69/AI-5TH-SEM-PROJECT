@@ -15,6 +15,29 @@ export const NOTEBOOK_URL = "https://colab.research.google.com/";
 export const INPUT_SIZE = 224;
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 export const TOP_K = 3;
+export const CLASS_COUNT = 38;
+
+/** Both inference and the on-load self-test enforce the exported model contract. */
+export function validateCnnOutput(shape: number[], scores: number[]): number {
+  if (shape.length !== 2 || shape[0] !== 1 || shape[1] !== CLASS_COUNT || scores.length !== CLASS_COUNT) {
+    throw new Error(`CNN output must be [1,${CLASS_COUNT}]; received [${shape.join(",")}] (${scores.length} scores)`);
+  }
+  if (scores.some((score) => !Number.isFinite(score) || score < 0 || score > 1)) {
+    throw new Error("CNN output contains invalid probabilities");
+  }
+  const sum = scores.reduce((total, score) => total + score, 0);
+  if (Math.abs(sum - 1) > 0.001) throw new Error(`CNN probabilities must sum to about 1; received ${sum}`);
+  return sum;
+}
+
+export function validateCnnLabels(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length !== CLASS_COUNT ||
+      value.some((label) => typeof label !== "string" || !label.includes("___")) ||
+      new Set(value).size !== CLASS_COUNT) {
+    throw new Error(`class_names.json must contain ${CLASS_COUNT} unique Crop___Disease labels in model output order`);
+  }
+  return value as string[];
+}
 
 export interface CnnPrediction {
   label: string;
