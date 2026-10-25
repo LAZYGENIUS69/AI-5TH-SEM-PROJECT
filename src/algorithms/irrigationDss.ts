@@ -129,21 +129,69 @@ export const IRRIGATION_DSS_SPEC = {
   title: "Sensor-fusion irrigation decision system",
   summary:
     "Three weighted soil probes are normalized and smoothed before KNN classification. Low-confidence cases expose a Naive Bayes fallback, while rain and tank safety gates override pump activation.",
+  limitations:
+    "Sensors are simulated in the browser and the 80-sample KNN training set is synthetic with 15% label noise. The accuracy figures on the dashboard are reference values from the original AgriDSS project, not measured here.",
   formulas: [
-    "SMfused = 0.50·SM10 + 0.30·SM20 + 0.20·SM30",
-    "SMnorm = ((SMfused − 20) / (100 − 20)) · 100",
-    "SMsmooth(t) = (1/6) · Σ SMnorm(t−i)",
-    "ET₀ = 0.0023 · (Tmean + 17.8) · √(Tmax − Tmin) · Ra",
-    "ETc = Kc · ET₀",
-    "d(q,x) = √Σj (normalize(qj) − normalize(xj))²",
-    "P(class|evidence) ∝ P(evidence|class) · P(class)",
+    {
+      label: "Sensor fusion",
+      latex: "SM_{fused}=0.5\\,SM_{10}+0.3\\,SM_{20}+0.2\\,SM_{30}",
+      symbols: [
+        { symbol: "SM_10, SM_20, SM_30", meaning: "Moisture at 10 / 20 / 30 cm depth", value: "%" },
+        { symbol: "0.5 / 0.3 / 0.2", meaning: "Depth weights (shallow roots matter most)" },
+      ],
+    },
+    {
+      label: "Normalisation",
+      latex: "SM_{norm}=\\dfrac{SM_{fused}-20}{80}\\times 100",
+      symbols: [
+        { symbol: "20 / 100", meaning: "Expected fused-moisture range", value: "%" },
+      ],
+    },
+    {
+      label: "Smoothing (6-reading moving average)",
+      latex: "\\bar x_t=\\dfrac{1}{6}\\sum_{i=0}^{5}x_{t-i}",
+      symbols: [
+        { symbol: "x_t", meaning: "Normalised moisture at tick t" },
+      ],
+    },
+    {
+      label: "Reference ET (Hargreaves variant)",
+      latex: "ET_0=0.0023\\,(T+17.8)\\,\\sqrt{T_{max}-T_{min}}\\,R_a,\\quad T_{max,min}=T\\pm4,\\; R_a=14",
+      symbols: [
+        { symbol: "T", meaning: "Sensor temperature", value: "°C" },
+        { symbol: "R_a", meaning: "Fixed extraterrestrial radiation", value: "14" },
+      ],
+    },
+    {
+      label: "Crop ET",
+      latex: "ET_c=K_c\\cdot ET_0",
+      symbols: [
+        { symbol: "K_c", meaning: "Crop coefficient", value: `wheat ${SENSOR_CROP_KC.wheat} · rice ${SENSOR_CROP_KC.rice} · maize ${SENSOR_CROP_KC.maize}` },
+      ],
+    },
+    {
+      label: "KNN distance (min-max normalised features)",
+      latex: "d(\\mathbf x,\\mathbf y)=\\sqrt{\\sum_j(x_j-y_j)^2},\\qquad \\mathrm{confidence}=\\tfrac{n_{maj}}{k},\\; k=5",
+      symbols: [
+        { symbol: "x, y", meaning: "Query and training sample feature vectors" },
+        { symbol: "n_maj", meaning: "Votes for the majority class among k = 5 neighbors" },
+      ],
+    },
+    {
+      label: "Naive Bayes fallback",
+      latex: "P(C\\mid x)\\propto P(C)\\,P(x\\mid C),\\quad P(I)=0.4,\\; P(H)=0.6",
+      symbols: [
+        { symbol: "P(I), P(H)", meaning: "Priors for Irrigate / Hold", value: "0.4 / 0.6" },
+        { symbol: "P(x|C)", meaning: "Likelihood from the smoothed-moisture band" },
+      ],
+    },
   ],
   decisionTree: [
-    "if rain detected                         → HOLD",
-    "else if tank level < 10%                 → HOLD",
-    "else if smoothed moisture < 35%          → IRRIGATE",
-    "else if KNN confidence ≥ 85%             → KNN majority decision",
-    "else                                      → MANUAL REVIEW (Naive Bayes shown)",
+    "if rain detected → HOLD",
+    "else if tank level < 10% → HOLD",
+    "else if smoothed moisture < 35% → IRRIGATE",
+    "else if KNN confidence ≥ 85% → KNN majority decision",
+    "else → MANUAL REVIEW (Naive Bayes shown)",
   ],
   thresholds: { knnK: 5, confidenceGate: 0.85, moistureOverridePct: 35, fieldCapacityPct: 45, tankMinimumPct: 10, smoothingWindow: 6 },
   weights: { depth10: 0.5, depth20: 0.3, depth30: 0.2 },
