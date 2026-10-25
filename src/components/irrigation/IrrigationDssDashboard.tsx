@@ -28,7 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { useIrrigationSimulation } from "@/hooks/useIrrigationSimulation";
 import type { SensorCropType } from "@/algorithms/irrigationDss";
-import { Math } from "@/components/Math";
+import { Math as Tex } from "@/components/Math";
 import { cn } from "@/lib/utils";
 
 const SENSOR_CROPS: { value: SensorCropType; label: string }[] = [
@@ -123,7 +123,7 @@ export function IrrigationDssDashboard({ initialCrop, onCropChange }: { initialC
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="SM fused" value={`${state.smFused.toFixed(1)}%`} detail={<Math tex="0.5\,SM_{10}+0.3\,SM_{20}+0.2\,SM_{30}" />} />
+        <Metric label="SM fused" value={`${state.smFused.toFixed(1)}%`} detail={<Tex tex="0.5\,SM_{10}+0.3\,SM_{20}+0.2\,SM_{30}" />} />
         <Metric label="SM normalized" value={`${state.smNorm.toFixed(1)}%`} detail="Field capacity threshold: 45%" warning={state.smNorm < 45} />
         <Metric label="ET₀ / ETc" value={state.et0.toFixed(2)} detail={`ETc: ${state.etc.toFixed(2)} mm/day`} />
         <Metric label="Temperature / humidity" value={`${state.sensors.temperature.toFixed(1)}°C`} detail={`Relative humidity: ${state.sensors.humidity.toFixed(1)}%`} />
