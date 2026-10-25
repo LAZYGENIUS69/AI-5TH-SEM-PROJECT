@@ -125,6 +125,47 @@ export const CNN_SPEC = {
     "Split label on '___' into crop and disease",
     "Top confidence < 60% -> ask for a retake on a plain background",
   ],
+  formulas: [
+    {
+      label: "Input rescaling (baked into the model)",
+      latex: "x'=\\dfrac{x}{127.5}-1",
+      symbols: [
+        { symbol: "x", meaning: "Raw pixel value", value: "0–255" },
+        { symbol: "x′", meaning: "Scaled input to the backbone", value: "−1…1" },
+      ],
+    },
+    {
+      label: "Global average pooling",
+      latex: "\\bar f_c=\\dfrac{1}{HW}\\sum_{h,w}f_{c,h,w}",
+      symbols: [
+        { symbol: "f_{c,h,w}", meaning: "Backbone feature map, channel c" },
+        { symbol: "H × W", meaning: "Feature-map spatial size" },
+      ],
+    },
+    {
+      label: "Softmax over 38 classes",
+      latex: "\\sigma(\\mathbf z)_k=\\dfrac{e^{z_k}}{\\sum_j e^{z_j}}",
+      symbols: [
+        { symbol: "z_k", meaning: "Logit for class k" },
+        { symbol: "σ(z)_k", meaning: "Probability shown as confidence" },
+      ],
+    },
+    {
+      label: "Training loss (cross-entropy)",
+      latex: "\\mathcal L=-\\sum_k y_k\\log\\hat y_k",
+      symbols: [
+        { symbol: "y_k", meaning: "One-hot true label" },
+        { symbol: "ŷ_k", meaning: "Predicted probability" },
+      ],
+    },
+    {
+      label: "Evaluation metrics (from metrics.json)",
+      latex: "\\mathrm{Precision}=\\tfrac{TP}{TP+FP},\\quad \\mathrm{Recall}=\\tfrac{TP}{TP+FN},\\quad F_1=\\tfrac{2PR}{P+R}",
+      symbols: [
+        { symbol: "TP / FP / FN", meaning: "True / false positives, false negatives on the test split" },
+      ],
+    },
+  ],
   thresholds: {
     inputSize: INPUT_SIZE,
     lowConfidence: LOW_CONFIDENCE_THRESHOLD,
