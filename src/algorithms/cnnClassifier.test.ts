@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
 import { CLASS_COUNT, INPUT_SIZE, LOW_CONFIDENCE_THRESHOLD, parseLabel, topPredictions, validateCnnLabels, validateCnnOutput } from "./cnnClassifier";
 import { buildRetrievalQuery } from "./agentFlow";
