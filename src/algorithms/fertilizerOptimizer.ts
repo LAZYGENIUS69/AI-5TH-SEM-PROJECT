@@ -285,3 +285,54 @@ export const FERTILIZER_SPEC = {
   },
   stages: GROWTH_STAGES.map((s) => `${s.name}: N ${s.share.N}, P ${s.share.P}, K ${s.share.K}`),
 } as const;
+
+/* ---------- Season view, soil health rating, cost ---------- */
+
+export function seasonPlan(input: { cropId: string; soil: SoilTest; areaHa: number }) {
+  return GROWTH_STAGES.map((stage) => ({
+    stage,
+    plan: optimizeFertilizer({ ...input, stageId: stage.id }),
+  }));
+}
+
+export type HealthLevel = "low" | "medium" | "high";
+
+/** Soil health card bands (kg/ha available; OC %). Values below `low` → low, above `high` → high. */
+export const SOIL_HEALTH_BANDS = {
+  N: { low: 280, high: 560, unit: "kg/ha" },
+  P: { low: 10, high: 25, unit: "kg/ha" },
+  K: { low: 108, high: 280, unit: "kg/ha" },
+  organicCarbon: { low: 0.5, high: 0.75, unit: "%" },
+} as const;
+
+/** pH acceptable band for most field crops. */
+export const PH_OK_BAND = { min: 6.5, max: 7.5 } as const;
+
+export function soilHealthRating(soil: SoilTest) {
+  const rate = (k: keyof typeof SOIL_HEALTH_BANDS): HealthLevel => {
+    const b = SOIL_HEALTH_BANDS[k];
+    const v = soil[k];
+    return v < b.low ? "low" : v > b.high ? "high" : "medium";
+  };
+  const ph: "acidic" | "normal" | "alkaline" =
+    soil.pH < PH_OK_BAND.min ? "acidic" : soil.pH > PH_OK_BAND.max ? "alkaline" : "normal";
+  return { N: rate("N"), P: rate("P"), K: rate("K"), organicCarbon: rate("organicCarbon"), pH: ph };
+}
+
+export const BAG_KG = 50;
+
+/** Editable default bag prices (₹ per 50 kg bag). */
+export const DEFAULT_BAG_PRICES: Record<string, number> = {
+  [FERTILIZER_PRODUCTS.urea.name]: 267,
+  [FERTILIZER_PRODUCTS.dap.name]: 1350,
+  [FERTILIZER_PRODUCTS.mop.name]: 1700,
+};
+
+export function estimateCost(products: ProductDose[], prices: Record<string, number>) {
+  const lines = products.map((p) => {
+    const bags = Math.ceil(p.totalKg / BAG_KG);
+    const price = prices[p.product] ?? 0;
+    return { product: p.product, totalKg: p.totalKg, bags, pricePerBag: price, cost: bags * price };
+  });
+  return { lines, total: lines.reduce((s, l) => s + l.cost, 0) };
+}
